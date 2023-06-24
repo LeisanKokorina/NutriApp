@@ -1,0 +1,33 @@
+<!-- activity_home.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".HomeActivity">
+
+    <!-- Calories consumed label -->
+    <TextView
+        android:id="@+id/textViewCaloriesConsumed"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Calories Consumed: 0" />
+
+    <!-- Expected calories label -->
+    <TextView
+        android:id="@+id/textViewExpectedCalories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Expected Calories: 0" />
+
+    <!-- Add meal button -->
+    <Button
+        android:id="@+id/buttonAddMeal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="+" />
+
+
+
+</LinearLayout>

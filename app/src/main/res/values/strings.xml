@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NutriApp</string>
+    <string name="app_logo">App Logo</string>
+    <string name="sign_up_login_label">Sign Up/Login</string>
+    <string name="home_label">Home Page</string>
+    <string name="registration_label">Registration Page</string>
+
+</resources>
