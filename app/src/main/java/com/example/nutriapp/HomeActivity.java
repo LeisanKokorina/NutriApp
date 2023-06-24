@@ -1,6 +1,7 @@
 package com.example.nutriapp;
 
 // HomeActivity.java
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -32,8 +33,6 @@ public class HomeActivity extends AppCompatActivity {
         textViewCaloriesConsumed.setText("Calories Consumed: " + caloriesConsumed);
         textViewExpectedCalories.setText("Expected Calories: " + expectedCalories);
 
-        helper.printUsers();
-        helper.printSessions();
         // Set click listener for the add meal button
         buttonAddMeal.setOnClickListener(new View.OnClickListener() {
             @Override

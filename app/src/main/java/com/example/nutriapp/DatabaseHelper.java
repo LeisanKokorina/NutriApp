@@ -1,4 +1,5 @@
 package com.example.nutriapp;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,7 +13,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "user.db";
     private static final int DATABASE_VERSION = 1;
-
     private static final String TABLE_NAME = "users";
     private static final String COLUMN_USERNAME = "username";
     private static final String COLUMN_PASSWORD = "password";
@@ -33,6 +33,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_SESSION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     COLUMN_USERNAME + " TEXT," +
                     COLUMN_TIMESTAMP + " INTEGER)";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -58,7 +59,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(COLUMN_USERNAME, username);
             values.put(COLUMN_PASSWORD, hashPassword(password));
-            createSession(username);
             return db.insert(TABLE_NAME, null, values);
         } finally {
             db.close();
@@ -139,8 +139,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-
-
     public void clearSessionForUser(String username) {
         SQLiteDatabase db = getWritableDatabase();
         try {
@@ -189,7 +187,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             if (cursor.moveToFirst()) {
                 int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
-                if(userColumnIndex != -1) {
+                if (userColumnIndex != -1) {
                     username = cursor.getString(userColumnIndex);
                 }
             }
@@ -223,7 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 do {
                     int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
                     int passwordColumnIndex = cursor.getColumnIndex(COLUMN_PASSWORD);
-                    if (passwordColumnIndex != -1 && userColumnIndex != -1 ) {
+                    if (passwordColumnIndex != -1 && userColumnIndex != -1) {
                         String username = cursor.getString(userColumnIndex);
                         String password = cursor.getString(passwordColumnIndex);
                         Log.d("User", "Username: " + username + ", Password: " + password);
@@ -245,7 +243,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 do {
                     int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
                     int timeColumnIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
-                    if (timeColumnIndex != -1 && userColumnIndex != -1 ) {
+                    if (timeColumnIndex != -1 && userColumnIndex != -1) {
                         String username = cursor.getString(userColumnIndex);
                         String timestamp = cursor.getString(timeColumnIndex);
                         Log.d("User", "Username: " + username + ", Timestamp: " + timestamp);

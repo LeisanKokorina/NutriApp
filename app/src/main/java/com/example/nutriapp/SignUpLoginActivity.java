@@ -36,8 +36,7 @@ public class SignUpLoginActivity extends AppCompatActivity {
         buttonLogin = findViewById(R.id.buttonLogin);
         textViewSignUp = findViewById(R.id.textViewSignUp);
         // Create an instance of the DatabaseHelper
-         databaseHelper = new DatabaseHelper(this);
-
+        databaseHelper = new DatabaseHelper(this);
 
 
         // Check if user is already logged in
@@ -69,6 +68,7 @@ public class SignUpLoginActivity extends AppCompatActivity {
     boolean isLoggedIn() {
         return databaseHelper.getLastValidSessionUsername() != null;
     }
+
     private void login() {
         // Get the entered username and password
         String username = editTextUsername.getText().toString().trim();
@@ -80,6 +80,7 @@ public class SignUpLoginActivity extends AppCompatActivity {
 
         if (isValidUser) {
             // Username and password match, proceed to next activity
+            databaseHelper.createSession(username);
             startActivity(new Intent(SignUpLoginActivity.this, HomeActivity.class));
             finish();
         } else {
