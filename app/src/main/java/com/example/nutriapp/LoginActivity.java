@@ -2,7 +2,6 @@ package com.example.nutriapp;
 
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,18 +11,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class SignUpLoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private EditText editTextUsername, editTextPassword;
-    private Button buttonSignUp, buttonLogin;
+    private Button buttonLogin;
     private TextView textViewSignUp;
     // Create an instance of the DatabaseHelper
     DatabaseHelper databaseHelper;
 
-    private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "MyPrefs";
-    private static final String KEY_USERNAME = "username";
-    private static final String KEY_PASSWORD = "password";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +37,7 @@ public class SignUpLoginActivity extends AppCompatActivity {
         // Check if user is already logged in
         if (isLoggedIn()) {
             // User is already logged in, proceed to next activity
-            startActivity(new Intent(SignUpLoginActivity.this, HomeActivity.class));
+            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();
         }
 
@@ -60,7 +55,7 @@ public class SignUpLoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Open the registration page
-                startActivity(new Intent(SignUpLoginActivity.this, RegistrationActivity.class));
+                startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
             }
         });
     }
@@ -81,11 +76,11 @@ public class SignUpLoginActivity extends AppCompatActivity {
         if (isValidUser) {
             // Username and password match, proceed to next activity
             databaseHelper.createSession(username);
-            startActivity(new Intent(SignUpLoginActivity.this, HomeActivity.class));
+            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();
         } else {
             // Invalid username or password, show an error message
-            Toast.makeText(SignUpLoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
         }
     }
 }

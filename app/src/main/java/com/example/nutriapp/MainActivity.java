@@ -7,7 +7,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
-    SignUpLoginActivity signUpLoginActivity = new SignUpLoginActivity();
+    LoginActivity loginActivity = new LoginActivity();
     private DatabaseHelper helper = new DatabaseHelper(this);
 
     @Override
@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, HomeActivity.class));
         } else {
             // User is not logged in, navigate to the sign up/login activity
-            startActivity(new Intent(MainActivity.this, SignUpLoginActivity.class));
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
         }
 
         // Finish the main activity so that the user cannot navigate back to it
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         helper.logout();
 
         // Redirect the user to the login page
-        startActivity(new Intent(MainActivity.this, SignUpLoginActivity.class));
+        startActivity(new Intent(MainActivity.this, LoginActivity.class));
         finish(); // Close the current activity
     }
 

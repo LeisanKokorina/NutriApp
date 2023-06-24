@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SignUpLoginActivity"
+            android:name=".LoginActivity"
             android:label="@string/sign_up_login_label">
             <!-- Add any intent filters if necessary -->
         </activity>

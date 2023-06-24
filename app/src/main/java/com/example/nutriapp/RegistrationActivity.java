@@ -50,7 +50,7 @@ public class RegistrationActivity extends AppCompatActivity {
             Toast.makeText(RegistrationActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
 
             // Optionally, you can navigate the user to the login page or any other desired activity
-            startActivity(new Intent(RegistrationActivity.this, SignUpLoginActivity.class));
+            startActivity(new Intent(RegistrationActivity.this, LoginActivity.class));
             finish();
         } else {
             // Registration failed
