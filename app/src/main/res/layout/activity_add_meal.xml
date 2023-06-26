@@ -1,0 +1,58 @@
+<!-- activity_add_food.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".AddFoodActivity">
+
+    <TextView
+        android:id="@+id/textViewIngredientIdLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ingredient ID" />
+
+    <EditText
+        android:id="@+id/editTextIngredientId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Ingredient ID"
+        android:inputType="number" />
+    <TextView
+        android:id="@+id/textViewAmountLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Amount" />
+
+    <EditText
+        android:id="@+id/editTextAmount"
+        android:layout_below="@id/editTextIngredientId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Amount of the product"
+        android:inputType="numberDecimal"
+        android:padding="8dp" />
+
+    <TextView
+        android:id="@+id/textViewUnitsLabel"
+        android:layout_below="@id/editTextAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Units"
+        android:textStyle="bold" />
+
+    <Spinner
+        android:id="@+id/spinnerUnits"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <Button
+        android:id="@+id/buttonSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit" />
+
+</LinearLayout>

@@ -1,8 +1,10 @@
 <resources>
     <string name="app_name">NutriApp</string>
     <string name="app_logo">App Logo</string>
-    <string name="sign_up_login_label">Sign Up/Login</string>
+    <string name="sign_up_login_label">Login</string>
     <string name="home_label">Home Page</string>
     <string name="registration_label">Registration Page</string>
+    <string name="add_food_label">Add Food Page</string>
+    <string name="api_key">762c1ef921024bed9ef6cd246b9f50be</string>
 
 </resources>

@@ -1,33 +1,67 @@
-<!-- activity_home.xml -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
     tools:context=".HomeActivity">
 
-    <!-- Calories consumed label -->
     <TextView
-        android:id="@+id/textViewCaloriesConsumed"
+        android:id="@+id/textViewProtein"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Protein:"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBarProtein"
+        style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Calories Consumed: 0" />
+        android:layout_below="@id/textViewProtein"
+        android:layout_marginTop="8dp" />
 
-    <!-- Expected calories label -->
     <TextView
-        android:id="@+id/textViewExpectedCalories"
+        android:id="@+id/textViewFat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Fat:"
+        android:textSize="18sp"
+        android:layout_below="@id/progressBarProtein"
+        android:layout_marginTop="16dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBarFat"
+        style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Expected Calories: 0" />
+        android:layout_below="@id/textViewFat"
+        android:layout_marginTop="8dp" />
 
-    <!-- Add meal button -->
+    <TextView
+        android:id="@+id/textViewCarbs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Carbs:"
+        android:textSize="18sp"
+        android:layout_below="@id/progressBarFat"
+        android:layout_marginTop="16dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBarCarbs"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewCarbs"
+        android:layout_marginTop="8dp" />
+
     <Button
-        android:id="@+id/buttonAddMeal"
-        android:layout_width="match_parent"
+        android:id="@+id/buttonAddFood"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="+" />
+        android:layout_below="@id/progressBarCarbs"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:text="Add Food" />
 
-
-
-</LinearLayout>
+</RelativeLayout>
