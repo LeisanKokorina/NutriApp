@@ -12,15 +12,25 @@ import org.mindrot.jbcrypt.BCrypt;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "user.db";
-    private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_NAME = "users";
+    private static final int DATABASE_VERSION = 3;
+    private static final String TABLE_USERS = "users";
+    private static final String COLUMN_USER_ID = "user_id";
     private static final String COLUMN_USERNAME = "username";
     private static final String COLUMN_PASSWORD = "password";
+    private static final String COLUMN_HEIGHT = "height";
+    private static final String COLUMN_WEIGHT = "weight";
+    private static final String COLUMN_GENDER = "gender";
+    private static final String COLUMN_DATE_OF_BIRTH = "date_of_birth";
 
-    private static final String CREATE_TABLE_QUERY =
-            "CREATE TABLE " + TABLE_NAME + " (" +
-                    COLUMN_USERNAME + " TEXT PRIMARY KEY," +
-                    COLUMN_PASSWORD + " TEXT)";
+    private static final String CREATE_TABLE_QUERY = "CREATE TABLE " + TABLE_USERS + " ("
+            + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+            + COLUMN_USERNAME + " TEXT, "
+            + COLUMN_PASSWORD + " TEXT, "
+            + COLUMN_HEIGHT + " REAL, "
+            + COLUMN_WEIGHT + " REAL, "
+            + COLUMN_GENDER + " TEXT, "
+            + COLUMN_DATE_OF_BIRTH + " TEXT"
+            + ")";
 
 
     private static final String TABLE_SESSIONS = "sessions";
@@ -30,8 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_TABLE_SESSIONS_QUERY =
             "CREATE TABLE " + TABLE_SESSIONS + " (" +
-                    COLUMN_SESSION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    COLUMN_USERNAME + " TEXT," +
+                    COLUMN_SESSION_ID + " INTEGER," +
                     COLUMN_TIMESTAMP + " INTEGER)";
 
     public DatabaseHelper(Context context) {
@@ -49,57 +58,91 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop the existing table if needed and recreate it
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        if (oldVersion < 2) {
+            // Drop the old version of the table if it exists
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSIONS);
+        }
         onCreate(db);
     }
 
-    public long insertUser(String username, String password) {
+    public long insertUser(User user) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_USERNAME, username);
-            values.put(COLUMN_PASSWORD, hashPassword(password));
-            return db.insert(TABLE_NAME, null, values);
+            values.put(COLUMN_USERNAME, user.getUsername());
+            values.put(COLUMN_PASSWORD, user.getHashPassword());
+            return db.insert(TABLE_USERS, null, values);
         } finally {
             db.close();
         }
     }
 
-    public boolean checkUser(String username, String password) {
+    public long updateUser(User user) {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            ContentValues values = new ContentValues();
+            if (user.getUsername() != null) {
+                values.put(COLUMN_USERNAME, user.getUsername());
+            }
+            if (user.getHashPassword() != null) {
+                values.put(COLUMN_PASSWORD, user.getHashPassword());
+            }
+            if (user.getHeight() != 0) {
+                values.put(COLUMN_HEIGHT, user.getHeight());
+            }
+            if (user.getWeight() != 0) {
+                values.put(COLUMN_WEIGHT, user.getWeight());
+            }
+            if (user.getGender() != null) {
+                values.put(COLUMN_GENDER, user.getGender());
+            }
+            if (user.getDateOfBirth() != null) {
+                values.put(COLUMN_DATE_OF_BIRTH, user.getDateOfBirth());
+            }
+
+            String whereClause = COLUMN_USER_ID + " = ?";
+            String[] whereArgs = {String.valueOf(user.getUserId())};
+
+            return db.update(TABLE_USERS, values, whereClause, whereArgs);
+        } finally {
+            db.close();
+        }
+    }
+
+
+    public int getCurrentSessionUserId(User user) {
         SQLiteDatabase db = getReadableDatabase();
         try {
-            String[] columns = {COLUMN_USERNAME, COLUMN_PASSWORD};
+            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH};
             String selection = COLUMN_USERNAME + " = ?";
-            String[] selectionArgs = {username};
-            Cursor cursor = db.query(TABLE_NAME, columns, selection, selectionArgs, null, null, null);
+            String[] selectionArgs = {user.getUsername()};
+            Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+
             if (cursor.moveToFirst()) {
+                int userIdColumnIndex = cursor.getColumnIndex(COLUMN_USER_ID);
                 int passwordColumnIndex = cursor.getColumnIndex(COLUMN_PASSWORD);
-                if (passwordColumnIndex != -1) {
-                    String storedPassword = cursor.getString(passwordColumnIndex);
-                    return BCrypt.checkpw(password, storedPassword);
+                String storedPassword = cursor.getString(passwordColumnIndex);
+
+                // Check if the entered password matches the stored password using BCrypt
+                if (BCrypt.checkpw(user.getHashPassword(), storedPassword)) {
+                    return cursor.getInt(userIdColumnIndex); // Passwords match, return the user ID
                 }
             }
             cursor.close();
-            return false;
+
         } finally {
             db.close();
         }
-    }
-
-    private String hashPassword(String password) {
-        // Generate a salt for bcrypt
-        String salt = BCrypt.gensalt();
-
-        // Hash the password using bcrypt
-        return BCrypt.hashpw(password, salt);
+        return -1; // User not found or password doesn't match
     }
 
 
-    public long createSession(String username) {
+    public long createSession(User user) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_USERNAME, username);
+            values.put(COLUMN_SESSION_ID, user.getUserId());
             values.put(COLUMN_TIMESTAMP, System.currentTimeMillis());
             return db.insert(TABLE_SESSIONS, null, values);
         } finally {
@@ -139,12 +182,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public void clearSessionForUser(String username) {
+    public void clearSessionForUser(User user) {
         SQLiteDatabase db = getWritableDatabase();
         try {
             // Clear the session entry for the specified username
             String whereClause = COLUMN_USERNAME + " = ?";
-            String[] whereArgs = {username};
+            String[] whereArgs = {user.getUsername()};
             db.delete(TABLE_SESSIONS, whereClause, whereArgs);
 
             // Optionally, clear sessions older than 6 hours
@@ -178,7 +221,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor cursor = null;
 
         try {
-            String[] columns = {COLUMN_USERNAME};
+            String[] columns = {COLUMN_SESSION_ID};
             String selection = COLUMN_TIMESTAMP + " >= ?";
             String[] selectionArgs = {String.valueOf(getSixHoursAgoTimestamp())};
             String orderBy = COLUMN_TIMESTAMP + " DESC";
@@ -186,7 +229,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor = db.query(TABLE_SESSIONS, columns, selection, selectionArgs, null, null, orderBy, limit);
 
             if (cursor.moveToFirst()) {
-                int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
+                int userColumnIndex = cursor.getColumnIndex(COLUMN_SESSION_ID);
                 if (userColumnIndex != -1) {
                     username = cursor.getString(userColumnIndex);
                 }
@@ -204,11 +247,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return username;
     }
 
-    public void logout() {
+    public void logout(User user) {
 
         // Delete the session for the current user
         String username = getLastValidSessionUsername();
-        clearSessionForUser(username);
+        clearSessionForUser(user);
     }
 
 
@@ -216,7 +259,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         try {
             String[] columns = {COLUMN_USERNAME, COLUMN_PASSWORD};
-            Cursor cursor = db.query(TABLE_NAME, columns, null, null, null, null, null);
+            Cursor cursor = db.query(TABLE_USERS, columns, null, null, null, null, null);
             if (cursor.moveToFirst()) {
                 do {
                     int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
@@ -254,6 +297,53 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.close();
         }
+    }
+
+    public boolean isUsernameTaken(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = null;
+
+        try {
+            String query = "SELECT * FROM " + TABLE_USERS + " WHERE " + COLUMN_USERNAME + " = ?";
+            cursor = db.rawQuery(query, new String[]{username});
+
+            // Check if the cursor has any rows
+            if (cursor != null && cursor.getCount() > 0) {
+                return true; // Username is taken
+            }
+
+            return false; // Username is available
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            db.close();
+        }
+    }
+
+    public float getUserWeight(User user) {
+        SQLiteDatabase db = getReadableDatabase();
+        float weight = 0.0f;
+
+        try {
+            String[] columns = {COLUMN_WEIGHT};
+            String selection = COLUMN_USER_ID + " = ?";
+            String[] selectionArgs = {String.valueOf(getCurrentSessionUserId(user))};
+            Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
+
+            if (cursor.moveToFirst()) {
+                int weightColumnIndex = cursor.getColumnIndex(COLUMN_WEIGHT);
+                if (weightColumnIndex != -1) {
+                    weight = cursor.getFloat(weightColumnIndex);
+                }
+            }
+
+            cursor.close();
+        } finally {
+            db.close();
+        }
+
+        return weight;
     }
 
 }

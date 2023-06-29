@@ -1,9 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".HomeActivity">
+    android:padding="0dp">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/teal_200"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <!-- Rest of your UI components -->
+
+
+    <LinearLayout
+        android:id="@+id/layoutFruitsVeg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/appBarLayout"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/textViewFruitsVeg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Fruits and Vegetables:"
+            android:textSize="18sp"
+            android:padding="16dp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentValueFruitsVeg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Current: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/textViewRecommendedValueFruitsVeg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Recommended: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progressBarFruitsVeg"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layoutFruitsVeg"
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
+
 
     <TextView
         android:id="@+id/textViewProtein"
@@ -11,7 +79,9 @@
         android:layout_height="wrap_content"
         android:text="Protein:"
         android:textSize="18sp"
-        android:layout_marginTop="8dp" />
+        android:layout_below="@id/progressBarFruitsVeg"
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
 
     <ProgressBar
         android:id="@+id/progressBarProtein"
@@ -19,7 +89,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewProtein"
-        android:layout_marginTop="8dp" />
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/textViewFat"
@@ -28,7 +99,8 @@
         android:text="Fat:"
         android:textSize="18sp"
         android:layout_below="@id/progressBarProtein"
-        android:layout_marginTop="16dp" />
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
 
     <ProgressBar
         android:id="@+id/progressBarFat"
@@ -36,7 +108,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewFat"
-        android:layout_marginTop="8dp" />
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
 
     <TextView
         android:id="@+id/textViewCarbs"
@@ -45,7 +118,8 @@
         android:text="Carbs:"
         android:textSize="18sp"
         android:layout_below="@id/progressBarFat"
-        android:layout_marginTop="16dp" />
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
 
     <ProgressBar
         android:id="@+id/progressBarCarbs"
@@ -53,15 +127,35 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/textViewCarbs"
-        android:layout_marginTop="8dp" />
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
+
+    <TextView
+        android:id="@+id/textViewSalt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Salt:"
+        android:textSize="18sp"
+        android:layout_below="@id/progressBarCarbs"
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBarSalt"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewSalt"
+        android:padding="16dp"
+        android:layout_marginTop="0dp" />
 
     <Button
         android:id="@+id/buttonAddFood"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/progressBarCarbs"
+        android:layout_below="@id/progressBarSalt"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="0dp"
         android:text="Add Food" />
 
 </RelativeLayout>

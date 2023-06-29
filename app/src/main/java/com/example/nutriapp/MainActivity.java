@@ -28,9 +28,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void logout() {
+    private void logout(User user) {
         //  clear the session
-        helper.logout();
+        helper.logout(user);
 
         // Redirect the user to the login page
         startActivity(new Intent(MainActivity.this, LoginActivity.class));

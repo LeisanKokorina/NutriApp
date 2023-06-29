@@ -7,18 +7,25 @@
     android:padding="16dp"
     tools:context=".AddFoodActivity">
 
-    <TextView
-        android:id="@+id/textViewIngredientIdLabel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ingredient ID" />
 
-    <EditText
-        android:id="@+id/editTextIngredientId"
+    <TextView
+        android:id="@+id/textViewIngredientLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ingredient ID"
-        android:inputType="number" />
+        android:text="Search" />
+
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteTextViewIngredientName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:hint="Enter ingredient name"
+        android:completionThreshold="1"
+        android:popupBackground="@android:color/white"
+        android:popupElevation="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
     <TextView
         android:id="@+id/textViewAmountLabel"
         android:layout_width="match_parent"
@@ -27,7 +34,7 @@
 
     <EditText
         android:id="@+id/editTextAmount"
-        android:layout_below="@id/editTextIngredientId"
+        android:layout_below="@id/textViewAmountLabel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Amount of the product"
@@ -40,8 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp"
-        android:text="Units"
-        android:textStyle="bold" />
+        android:text="Units"/>
 
     <Spinner
         android:id="@+id/spinnerUnits"

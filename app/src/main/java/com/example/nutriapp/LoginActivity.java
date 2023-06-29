@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText editTextUsername, editTextPassword;
@@ -68,20 +70,32 @@ public class LoginActivity extends AppCompatActivity {
         // Get the entered username and password
         String username = editTextUsername.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
-
+        User user = new User(username, password);
 
         // Check if the entered username and password match the values in the database
-        boolean isValidUser = databaseHelper.checkUser(username, password);
+        int validUserID =  databaseHelper.getCurrentSessionUserId(user);
 
-        if (isValidUser) {
-            // Username and password match, proceed to next activity
-            databaseHelper.createSession(username);
-            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+        if (validUserID != -1) {
+            User userSession = new User(validUserID);
+            databaseHelper.createSession(userSession);
+
+            CurrentUser currentUser = CurrentUser.getInstance();
+            currentUser.setUser(userSession);
+
+            startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
             finish();
         } else {
             // Invalid username or password, show an error message
             Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private String hashPassword(String password) {
+        // Generate a salt for bcrypt
+        String salt = BCrypt.gensalt();
+
+        // Hash the password using bcrypt
+        return BCrypt.hashpw(password, salt);
     }
 }
 

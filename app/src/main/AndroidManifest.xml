@@ -42,6 +42,11 @@
             android:label="@string/add_food_label">
         </activity>
 
+        <activity
+            android:name=".ProfileActivity"
+            android:label="@string/profile_label">
+        </activity>
+
     </application>
 
 </manifest>
