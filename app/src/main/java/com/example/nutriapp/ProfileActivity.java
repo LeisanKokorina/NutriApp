@@ -19,6 +19,7 @@ public class ProfileActivity extends AppCompatActivity {
     private EditText editTextHeight;
     private LinearLayout datePicker;
     private RadioGroup radioGroupGender;
+    private RadioGroup radioGroupActivity;
     private Button buttonSave;
 
     private DatabaseHelper databaseHelper;
@@ -36,6 +37,7 @@ public class ProfileActivity extends AppCompatActivity {
         editTextHeight = findViewById(R.id.editTextHeight);
         datePicker = findViewById(R.id.linearLayoutDateOfBirth);
         radioGroupGender = findViewById(R.id.radioGroupGender);
+        radioGroupActivity = findViewById(R.id.radioGroupActivity);
         buttonSave = findViewById(R.id.buttonSave);
 
         // Initialize Database Helper
@@ -68,8 +70,9 @@ public class ProfileActivity extends AppCompatActivity {
         float weight = Float.parseFloat(editTextWeight.getText().toString().trim());
         String dateOfBirth = datePicker.toString().trim();
         String gender = getSelectedGender();
+        String levelActivity = getSelectedActivity();
 
-        User user = new User(null,null, height, weight, dateOfBirth, gender);
+        User user = new User(null,null, height, weight, dateOfBirth, gender, levelActivity);
 
 
         // Insert user details into the database
@@ -99,6 +102,21 @@ public class ProfileActivity extends AppCompatActivity {
             return "Female";
         }
         return "";
+    }
+
+    private String getSelectedActivity() {
+        int selectedId = radioGroupActivity.getCheckedRadioButtonId();
+        if (selectedId == R.id.radioButtonInactive) {
+            return "Inactive";
+        } else if (selectedId == R.id.radioButtonSomeWhatActive) {
+            return "Somewhat Active";
+        }else if (selectedId == R.id.radioButtonActive) {
+            return "Active";
+        }else if (selectedId == R.id.radioButtonVeryActive) {
+            return "Very Active";
+        }
+
+        return null;
     }
 
     @Override

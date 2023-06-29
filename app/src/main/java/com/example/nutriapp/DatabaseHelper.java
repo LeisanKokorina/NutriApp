@@ -22,6 +22,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_GENDER = "gender";
     private static final String COLUMN_DATE_OF_BIRTH = "date_of_birth";
 
+    private static final String COLUMN_ACTIVITY_LEVEL = "activity_level";
+
     private static final String CREATE_TABLE_QUERY = "CREATE TABLE " + TABLE_USERS + " ("
             + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_USERNAME + " TEXT, "
@@ -29,7 +31,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_HEIGHT + " REAL, "
             + COLUMN_WEIGHT + " REAL, "
             + COLUMN_GENDER + " TEXT, "
-            + COLUMN_DATE_OF_BIRTH + " TEXT"
+            + COLUMN_DATE_OF_BIRTH + " TEXT, "
+            + COLUMN_ACTIVITY_LEVEL + " TEXT"
             + ")";
 
 
@@ -99,6 +102,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             if (user.getDateOfBirth() != null) {
                 values.put(COLUMN_DATE_OF_BIRTH, user.getDateOfBirth());
+            }
+            if (user.getActivityLevel() != null) {
+                values.put(COLUMN_ACTIVITY_LEVEL, user.getActivityLevel());
             }
 
             String whereClause = COLUMN_USER_ID + " = ?";

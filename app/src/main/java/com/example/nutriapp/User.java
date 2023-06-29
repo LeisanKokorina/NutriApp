@@ -1,8 +1,6 @@
 package com.example.nutriapp;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -11,18 +9,23 @@ public class User {
     private long userId;
     private String username;
     private String hashPassword;
-    private float height;
-    private float weight;
+    private double height;
+    private double weight;
     private String gender;
     private String dateOfBirth;
 
-    public User(String username, String hashPassword, float height, float weight, String gender, String dateOfBirth) {
+    private String activityLevel;
+
+
+
+    public User(String username, String hashPassword, double height, double weight, String gender, String dateOfBirth, String activityLevel) {
         this.username = username;
         this.hashPassword = hashPassword;
         this.height = height;
         this.weight = weight;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
+        this.activityLevel = activityLevel;
     }
 
     public User(String username, String hashPassword) {
@@ -50,11 +53,11 @@ public class User {
         return hashPassword;
     }
 
-    public float getHeight() {
+    public double getHeight() {
         return height;
     }
 
-    public float getWeight() {
+    public double getWeight() {
         return weight;
     }
 
@@ -64,6 +67,14 @@ public class User {
 
     public String getDateOfBirth() {
         return dateOfBirth;
+    }
+
+    public String getActivityLevel() {
+        return activityLevel;
+    }
+
+    public void setActivityLevel(String activityLevel) {
+        this.activityLevel = activityLevel;
     }
 
     public int calculateAge() {

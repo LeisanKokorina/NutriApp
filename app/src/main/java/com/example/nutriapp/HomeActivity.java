@@ -98,42 +98,46 @@ public class HomeActivity extends AppCompatActivity {
         progressBarSalt.setProgress(saltProgress);
     }
 
-    private float expectedProtein() {
+    private double expectedProtein() {
         // Retrieve the user's weight from the database
         User currentUser = CurrentUser.getInstance().getUser();
-        float weight = databaseHelper.getUserWeight(currentUser);
+        double weight = databaseHelper.getUserWeight(currentUser);
 
         // Calculate the maximum protein value based on the weight and protein allowance
-        float proteinAllowance = 0.8f; // Protein allowance in grams per kg body weight per day
-        float maxProtein = weight * proteinAllowance;
+        double proteinAllowance = 0.8; // Protein allowance in grams per kg body weight per day
 
-        return maxProtein;
+        return weight * proteinAllowance;
     }
 
-    private float expectedFat() {
-        // Retrieve the user's weight from the database
-
-        float weight = databaseHelper.getUserWeight(currentUser);
-
-        // Calculate the maximum protein value based on the weight and protein allowance
-        float proteinAllowance = 0.8f; // Protein allowance in grams per kg body weight per day
-        float maxProtein = weight * proteinAllowance;
-
-        return maxProtein;
+    private double expectedFat() {
+        return calculateCalories() * 0.3;
     }
 
-    private float expectedCarbs() {
-        return 200; // Modify this method to return the actual expected carbs value
+    private double expectedCarbs() {
+        return calculateCalories() * 0.55;
     }
 
     // Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
     // Women: BMR = 447.593 + (9.247 x weight in kg) + (3.098 x height in cm) – (4.330 x age in years)
-    private double calculateBMR(User user) {
+    private double calculateBMR() {
       if(currentUser.getGender().equalsIgnoreCase("Female")){
           return 447.593 + (9.247 * currentUser.getWeight()) + (3.098 * currentUser.getHeight()) - (4.330 * currentUser.calculateAge());
       }else{
           return 88.362 + (13.397 * currentUser.getWeight()) + (4.799 * currentUser.getHeight()) - (5.677 * currentUser.calculateAge());
       }
+    }
+
+    private double calculateCalories() {
+        if (currentUser.getActivityLevel().equalsIgnoreCase("inactive")) {
+            return 1.2F * calculateBMR();
+        } else  if (currentUser.getActivityLevel().equalsIgnoreCase("somewhat active")) {
+            return 1.375F * calculateBMR();
+        }else  if (currentUser.getActivityLevel().equalsIgnoreCase("active")) {
+            return 1.55F * calculateBMR();
+        }else  if (currentUser.getActivityLevel().equalsIgnoreCase("very active")) {
+            return 1.725F * calculateBMR();
+        }
+        return 0;
     }
 }
 
