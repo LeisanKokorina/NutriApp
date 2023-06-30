@@ -26,7 +26,6 @@ NutriApp is a Android application designed to assist users in maintaining a heal
 ## Future Enhancements
 
 - Search for recipes or specific food items using the Spoonacular API.
-- Track calorie intake and offer calorie-based recommendations.
 - Generate personalized meal plans based on user preferences and nutritional goals.
 - Implement integration with Gmail.
 
