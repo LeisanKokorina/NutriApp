@@ -7,8 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
+import com.example.nutriapp.models.common.User;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -290,7 +289,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         clearSessionForUser(user);
     }
 
-
+    //For debugging
     public void printUsers() {
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -335,6 +334,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //For debugging
     public void printSessions() {
         SQLiteDatabase db = getReadableDatabase();
         try {
@@ -388,53 +388,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         int userId = -1;
 
-        String query = "SELECT " + COLUMN_SESSION_USER_ID +
-                " FROM " + TABLE_SESSIONS +
-                " WHERE " + COLUMN_SESSION_TOKEN + " = ?";
-        String[] selectionArgs = {sessionToken};
+        if (sessionToken != null) {
+            String query = "SELECT " + COLUMN_SESSION_USER_ID +
+                    " FROM " + TABLE_SESSIONS +
+                    " WHERE " + COLUMN_SESSION_TOKEN + " = ?";
+            String[] selectionArgs = {sessionToken};
 
-        Cursor cursor = db.rawQuery(query, selectionArgs);
+            Cursor cursor = db.rawQuery(query, selectionArgs);
 
-        if (cursor != null && cursor.moveToFirst()) {
-            int columnIndex = cursor.getColumnIndex(COLUMN_SESSION_USER_ID);
-            if (columnIndex != -1) {
-                userId = cursor.getInt(columnIndex);
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(COLUMN_SESSION_USER_ID);
+                if (columnIndex != -1) {
+                    userId = cursor.getInt(columnIndex);
+                }
             }
         }
-
-        if (cursor != null) {
-            cursor.close();
-        }
-
-        db.close();
 
         return userId;
     }
 
-    public float getUserWeight(User user) {
-        SQLiteDatabase db = getReadableDatabase();
-        float weight = 0.0f;
-
-        try {
-            String[] columns = {COLUMN_WEIGHT};
-            String selection = COLUMN_USER_ID + " = ?";
-            String[] selectionArgs = {String.valueOf(getUserIdUsersTable(user))};
-            Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
-
-            if (cursor.moveToFirst()) {
-                int weightColumnIndex = cursor.getColumnIndex(COLUMN_WEIGHT);
-                if (weightColumnIndex != -1) {
-                    weight = cursor.getFloat(weightColumnIndex);
-                }
-            }
-
-            cursor.close();
-        } finally {
-            db.close();
-        }
-
-        return weight;
-    }
 
     public User getUserById(long userId) {
         SQLiteDatabase db = this.getReadableDatabase();

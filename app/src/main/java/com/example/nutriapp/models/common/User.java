@@ -1,4 +1,4 @@
-package com.example.nutriapp;
+package com.example.nutriapp.models.common;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

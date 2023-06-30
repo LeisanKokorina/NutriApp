@@ -1,4 +1,4 @@
-package com.example.nutriapp;
+package com.example.nutriapp.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,12 +12,14 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.nutriapp.DatabaseHelper;
+import com.example.nutriapp.R;
+import com.example.nutriapp.models.common.User;
+import com.example.nutriapp.utils.CommonUtils;
+import com.example.nutriapp.utils.DateUtils;
 
 public class ProfileActivity extends AppCompatActivity {
     private EditText editTextWeight;
@@ -29,10 +31,7 @@ public class ProfileActivity extends AppCompatActivity {
     private RadioGroup radioGroupActivity;
     private Button buttonSave;
 
-    private ActivityResultLauncher<Intent> homePageLauncher;
-
     private DatabaseHelper databaseHelper;
-    private CurrentUser currentUser;
     private SharedPreferences sharedPreferences;
 
     @Override
@@ -70,7 +69,8 @@ public class ProfileActivity extends AppCompatActivity {
         yearAdapter.notifyDataSetChanged();
 
         // Retrieve the user information from the Intent
-        User user = databaseHelper.getUserById(getCurrentUserId());
+        int userId = CommonUtils.getCurrentUserId(sharedPreferences, databaseHelper);
+        User user = databaseHelper.getUserById(userId);
         if (user.getWeight() != 0 && user.getHeight() != 0 && !user.getDateOfBirth().isEmpty() && !user.getGender().isEmpty() && !user.getActivityLevel().isEmpty())
             prefillProfilePage(user);
 
@@ -87,12 +87,12 @@ public class ProfileActivity extends AppCompatActivity {
         // Get the entered username and password
         float height = Float.parseFloat(editTextHeight.getText().toString().trim());
         float weight = Float.parseFloat(editTextWeight.getText().toString().trim());
-        String dateOfBirth = getDateOfBirth();
+        String dateOfBirth = DateUtils.getDateOfBirth(spinnerDay, spinnerMonth, spinnerYear);
         String gender = getSelectedGender();
         String levelActivity = getSelectedActivity();
 
         // Validate date of birth
-        if (!isValidDate(dateOfBirth)) {
+        if (!DateUtils.isValidDate(dateOfBirth)) {
             Toast.makeText(ProfileActivity.this, "Please enter a valid date of birth", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -115,9 +115,6 @@ public class ProfileActivity extends AppCompatActivity {
 
             // profile saved successfully
             Toast.makeText(ProfileActivity.this, "Your profile information successfully updated!", Toast.LENGTH_SHORT).show();
-            CurrentUser.getInstance().setUser(databaseHelper.getUserById(rowId));
-            databaseHelper.printUsers();
-            databaseHelper.printSessions();
             startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
             finish();
         } else {
@@ -161,127 +158,6 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String getDateOfBirth() {
-        // Values from the spinners
-        String selectedDay = spinnerDay.getSelectedItem().toString();
-        String selectedMonth = spinnerMonth.getSelectedItem().toString();
-        String selectedYear = spinnerYear.getSelectedItem().toString();
-
-
-        return selectedDay + "-" + getMonthNumber(selectedMonth) + "-" + selectedYear;
-    }
-
-    private String getMonthNumber(String monthName) {
-        switch (monthName.toLowerCase()) {
-            case "january":
-                return "01";
-            case "february":
-                return "02";
-            case "march":
-                return "03";
-            case "april":
-                return "04";
-            case "may":
-                return "05";
-            case "june":
-                return "06";
-            case "july":
-                return "07";
-            case "august":
-                return "08";
-            case "september":
-                return "09";
-            case "october":
-                return "10";
-            case "november":
-                return "11";
-            case "december":
-                return "12";
-            default:
-                return "-1"; // Invalid month name
-        }
-    }
-
-    private boolean isValidDate(String date) {
-        try {
-            // Split the date into day, month, and year
-            String[] parts = date.split("-");
-            int day = Integer.parseInt(parts[0]);  //31
-            int month = Integer.parseInt(parts[1]); //02
-            int year = Integer.parseInt(parts[2]); //1994
-
-            // Check if the day is valid for the given month
-            boolean isLeapYear = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
-            int[] daysInMonth = {31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-            int maxDays = daysInMonth[month - 1];
-            if (day > maxDays) {
-                return false;
-            }
-
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private int getSpinnerIndex(Spinner spinner, String value) {
-        ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinner.getAdapter();
-        for (int i = 0; i < adapter.getCount(); i++) {
-            if (adapter.getItem(i).equals(value)) {
-                return i;
-            }
-        }
-        return 0; // Default index if value not found
-    }
-
-    private String getMonthName(String monthNumber) {
-        switch (monthNumber) {
-            case "01":
-                return "January";
-            case "02":
-                return "February";
-            case "03":
-                return "March";
-            case "04":
-                return "April";
-            case "05":
-                return "May";
-            case "06":
-                return "June";
-            case "07":
-                return "July";
-            case "08":
-                return "August";
-            case "09":
-                return "September";
-            case "10":
-                return "October";
-            case "11":
-                return "November";
-            case "12":
-                return "December";
-            default:
-                return ""; // Empty string if month number is invalid
-        }
-    }
-
-    private int getCurrentUserId() {
-        // Retrieve the session token from SharedPreferences
-        String sessionToken = sharedPreferences.getString("sessionToken", null);
-
-        // Get the user ID based on the session token from the DatabaseHelper
-        return databaseHelper.getUserIdBySessionToken(sessionToken);
-    }
-
-    private void setSpinnerSelectionByValue(Spinner spinner, String value) {
-        ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinner.getAdapter();
-        if (adapter != null) {
-            int position = adapter.getPosition(value);
-            spinner.setSelection(position);
-        }
-    }
-
-
     private void prefillProfilePage(User user) {
         // Set the user information into the corresponding views
         editTextWeight.setText(String.valueOf((int) user.getWeight()));
@@ -289,12 +165,12 @@ public class ProfileActivity extends AppCompatActivity {
 
         String[] dateOfBirthParts = user.getDateOfBirth().split("-");
         String day = dateOfBirthParts[0];
-        String month = getMonthName(dateOfBirthParts[1]);
+        String month = DateUtils.getMonthName(dateOfBirthParts[1]);
         String year = dateOfBirthParts[2];
 
-        int dayIndex = getSpinnerIndex(spinnerDay, day);
-        int monthIndex = getSpinnerIndex(spinnerMonth, month);
-        int yearIndex = getSpinnerIndex(spinnerYear, year);
+        int dayIndex = DateUtils.getSpinnerIndex(spinnerDay, day);
+        int monthIndex = DateUtils.getSpinnerIndex(spinnerMonth, month);
+        int yearIndex = DateUtils.getSpinnerIndex(spinnerYear, year);
 
         spinnerDay.setSelection(dayIndex);
         spinnerMonth.setSelection(monthIndex);

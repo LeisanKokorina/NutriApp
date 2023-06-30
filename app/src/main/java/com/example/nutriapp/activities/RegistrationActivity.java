@@ -1,4 +1,4 @@
-package com.example.nutriapp;
+package com.example.nutriapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.nutriapp.DatabaseHelper;
+import com.example.nutriapp.R;
+import com.example.nutriapp.models.common.User;
 
 import org.mindrot.jbcrypt.BCrypt;
 

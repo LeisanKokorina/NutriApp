@@ -1,4 +1,4 @@
-package com.example.nutriapp;
+package com.example.nutriapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.nutriapp.R;
+import com.example.nutriapp.SpoonacularRequestManager;
 import com.example.nutriapp.models.getInfoByID.IngredientInfoAPIResponse;
 import com.example.nutriapp.models.getInfoByID.Nutrient;
 import com.example.nutriapp.models.ingredientSearch.IngredientSearchAPIResponse;
@@ -24,8 +26,6 @@ import com.example.nutriapp.models.listeners.IngredientSearchResponseListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class AddFoodActivity extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteIngredientName;

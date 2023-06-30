@@ -1,4 +1,4 @@
-package com.example.nutriapp;
+package com.example.nutriapp.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +17,11 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+
+import com.example.nutriapp.DatabaseHelper;
+import com.example.nutriapp.R;
+import com.example.nutriapp.models.common.User;
+import com.example.nutriapp.utils.CommonUtils;
 
 public class HomeActivity extends AppCompatActivity {
     private ProgressBar progressFruitVeg;
@@ -52,6 +57,7 @@ public class HomeActivity extends AppCompatActivity {
     double maxFats;
     double maxCarbs;
     double maxSodium;
+    int userId;
 
 
     @Override
@@ -61,7 +67,8 @@ public class HomeActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
 
         sharedPreferences = getSharedPreferences("SessionPrefs", MODE_PRIVATE);
-        currentUser = databaseHelper.getUserById(getCurrentUserId());
+        userId = CommonUtils.getCurrentUserId(sharedPreferences, databaseHelper);
+        currentUser = databaseHelper.getUserById(userId);
 
         progressFruitVeg = findViewById(R.id.progressBarFruitsVeg);
         progressBarProtein = findViewById(R.id.progressBarProtein);
@@ -326,7 +333,7 @@ public class HomeActivity extends AppCompatActivity {
     private void performLogout() {
         // Implement your logout logic here
         // For example, clear session data and navigate to the login screen
-        databaseHelper.clearSession(getCurrentUserId());
+        databaseHelper.clearSession(userId);
         startActivity(new Intent(this, LoginActivity.class));
         finish();
     }
