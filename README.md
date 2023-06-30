@@ -32,4 +32,4 @@ NutriApp is a Android application designed to assist users in maintaining a heal
 
 ## Acknowledgments
 
-The development of NutriApp was inspired by the valuable information provided by organizations such as WHO, Harvard Health Publishing, and Mayo Clinic. We would like to express our gratitude to the developers and contributors of the Android SDK, Spoonacular API, and other open-source libraries used in this project.
+The development of NutriApp was inspired by the valuable information provided by organizations such as WHO, Harvard Health Publishing, and Mayo Clinic.
