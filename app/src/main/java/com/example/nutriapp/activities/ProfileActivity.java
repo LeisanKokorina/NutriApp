@@ -40,7 +40,7 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true); // Enable the back button
+            actionBar.setDisplayHomeAsUpEnabled(false); // disable the back button
         }
         sharedPreferences = getSharedPreferences("SessionPrefs", MODE_PRIVATE);
         editTextWeight = findViewById(R.id.editTextWeight);
@@ -71,8 +71,12 @@ public class ProfileActivity extends AppCompatActivity {
         // Retrieve the user information from the Intent
         int userId = CommonUtils.getCurrentUserId(sharedPreferences, databaseHelper);
         User user = databaseHelper.getUserById(userId);
-        if (user.getWeight() != 0 && user.getHeight() != 0 && !user.getDateOfBirth().isEmpty() && !user.getGender().isEmpty() && !user.getActivityLevel().isEmpty())
+        if (user.getWeight() != 0 && user.getHeight() != 0 && !user.getDateOfBirth().isEmpty() && !user.getGender().isEmpty() && !user.getActivityLevel().isEmpty()){
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true); // Enable the back button
+            }
             prefillProfilePage(user);
+        }
 
 
         buttonSave.setOnClickListener(new View.OnClickListener() {
@@ -84,12 +88,18 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void saveProfile() {
-        // Get the entered username and password
-        float height = Float.parseFloat(editTextHeight.getText().toString().trim());
-        float weight = Float.parseFloat(editTextWeight.getText().toString().trim());
         String dateOfBirth = DateUtils.getDateOfBirth(spinnerDay, spinnerMonth, spinnerYear);
         String gender = getSelectedGender();
         String levelActivity = getSelectedActivity();
+
+        // Validate all the fields
+        if (editTextHeight.getText().toString().isEmpty() || editTextWeight.getText().toString().isEmpty() || dateOfBirth.isEmpty() || gender == null || levelActivity == null) {
+            Toast.makeText(ProfileActivity.this, "Please fill in all the fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Get the entered username and password
+        float height = Float.parseFloat(editTextHeight.getText().toString().trim());
+        float weight = Float.parseFloat(editTextWeight.getText().toString().trim());
 
         // Validate date of birth
         if (!DateUtils.isValidDate(dateOfBirth)) {
@@ -111,14 +121,14 @@ public class ProfileActivity extends AppCompatActivity {
         long rowId = databaseHelper.updateUser(user);
 
 
-        if (rowId != -1) {
+        if (rowId != 0) {
 
             // profile saved successfully
             Toast.makeText(ProfileActivity.this, "Your profile information successfully updated!", Toast.LENGTH_SHORT).show();
             startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
             finish();
         } else {
-            // Registration failed
+            // Nothing has changed
             Toast.makeText(ProfileActivity.this, "Failed to fill out the profile information", Toast.LENGTH_SHORT).show();
         }
     }

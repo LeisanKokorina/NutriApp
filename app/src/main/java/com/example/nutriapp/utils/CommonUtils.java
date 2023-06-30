@@ -11,7 +11,10 @@ public class CommonUtils {
 
         String sessionToken = sharedPreferences.getString("sessionToken", null);
 
-        // Get the user ID based on the session token from the DatabaseHelper
-        return databaseHelper.getUserIdBySessionToken(sessionToken);
+        if(!sessionToken.isEmpty()){
+            return databaseHelper.getUserIdBySessionToken(sessionToken);
+        } else {
+            return -1;
+        }
     }
 }
