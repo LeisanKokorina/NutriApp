@@ -2,6 +2,11 @@ package com.example.nutriapp.utils;
 
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class DateUtils {
     public static String getDateOfBirth(Spinner spinnerDay, Spinner spinnerMonth, Spinner spinnerYear) {
@@ -113,9 +118,19 @@ public class DateUtils {
             spinner.setSelection(position);
         }
     }
+
+    public static void updateDate(TextView textView) {
+        // Get the current date
+        Calendar calendar = Calendar.getInstance();
+        Date currentDate = calendar.getTime();
+
+        // Create a date format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy");
+
+        // Format the current date as a string
+        String formattedDate = dateFormat.format(currentDate);
+
+        // Set the formatted date to the textViewDate
+        textView.setText(formattedDate);
+    }
 }
-
-
-    // Rest of the save
-
-

@@ -4,12 +4,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.os.Handler;
+import android.os.Looper;
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -22,6 +28,11 @@ import com.example.nutriapp.DatabaseHelper;
 import com.example.nutriapp.R;
 import com.example.nutriapp.models.common.User;
 import com.example.nutriapp.utils.CommonUtils;
+import com.example.nutriapp.utils.DateUtils;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
     private ProgressBar progressFruitVeg;
@@ -39,6 +50,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView textViewMaxFats;
     private TextView textViewMaxCarbs;
     private TextView textViewMaxSalt;
+    private TextView textViewDate;
 
     private Button buttonAddFood;
 
@@ -57,6 +69,7 @@ public class HomeActivity extends AppCompatActivity {
     double maxFats;
     double maxCarbs;
     double maxSodium;
+    private Timer timer;
     int userId;
 
 
@@ -69,6 +82,11 @@ public class HomeActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("SessionPrefs", MODE_PRIVATE);
         userId = CommonUtils.getCurrentUserId(sharedPreferences, databaseHelper);
         currentUser = databaseHelper.getUserById(userId);
+        // Find the TextView for the date
+        textViewDate = findViewById(R.id.textViewDate);
+
+        // Update the date
+        DateUtils.updateDate(textViewDate);
 
         progressFruitVeg = findViewById(R.id.progressBarFruitsVeg);
         progressBarProtein = findViewById(R.id.progressBarProtein);
@@ -76,6 +94,9 @@ public class HomeActivity extends AppCompatActivity {
         progressBarCarbs = findViewById(R.id.progressBarCarbs);
         progressBarSodium = findViewById(R.id.progressBarSalt);
         buttonAddFood = findViewById(R.id.buttonAddFood);
+
+        // Schedule reset task at midnight
+        scheduleResetTask();
 
         textViewCurrentValueFruitsVeg = findViewById(R.id.textViewCurrentValueFruitsVeg);
         textViewCurrentValueProtein = findViewById(R.id.textViewCurrentValueProtein);
@@ -134,6 +155,50 @@ public class HomeActivity extends AppCompatActivity {
                 });
     }
 
+
+    private void scheduleResetTask() {
+        // Get the current time
+        Calendar calendar = Calendar.getInstance();
+        int currentHour = calendar.get(Calendar.HOUR_OF_DAY);
+        int currentMinute = calendar.get(Calendar.MINUTE);
+        int currentSecond = calendar.get(Calendar.SECOND);
+
+        // Calculate the remaining time until midnight
+        int remainingHour = 24 - currentHour;
+        int remainingMinute = 59 - currentMinute;
+        int remainingSecond = 60 - currentSecond;
+
+        // Calculate the total milliseconds until midnight
+        long totalMilliseconds = (remainingHour * 3600 + remainingMinute * 60 + remainingSecond) * 1000;
+
+        // Schedule the task to run at midnight
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // Reset the progress bars
+                resetProgressBars();
+            }
+        }, totalMilliseconds);
+    }
+
+    private void resetProgressBars() {
+        // Run the UI-related task on the main thread
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                // Reset the progress bars to 0
+                progressFruitVeg.setProgress(0);
+                progressBarProtein.setProgress(0);
+                progressBarFat.setProgress(0);
+                progressBarCarbs.setProgress(0);
+                progressBarSodium.setProgress(0);
+
+                // Reschedule the task for the next day
+                scheduleResetTask();
+            }
+        });
+    }
 
     private void openAddFoodActivity() {
         Intent intent = new Intent(HomeActivity.this, AddFoodActivity.class);
