@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.nutriapp.R;
@@ -29,8 +31,6 @@ import java.util.List;
 
 public class AddFoodActivity extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteIngredientName;
-
-    private EditText editTextIngredientId;
     private EditText editTextAmount;
 
     private Button buttonSubmit;
@@ -46,7 +46,10 @@ public class AddFoodActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_meal);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true); // enable the back button
+        }
 
         autoCompleteIngredientName = findViewById(R.id.autoCompleteTextViewIngredientName);
         editTextAmount = findViewById(R.id.editTextAmount);
@@ -198,5 +201,14 @@ public class AddFoodActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, unitsList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerUnits.setAdapter(adapter);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed(); // Handle the back button click
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

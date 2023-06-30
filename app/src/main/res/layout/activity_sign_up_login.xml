@@ -9,6 +9,15 @@
     tools:context=".activities.LoginActivity">
 
     <!-- Username input field -->
+    <ImageView
+        android:id="@+id/nameLogo"
+        android:layout_width="164dp"
+        android:layout_height="100dp"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/app_name"
+        android:rotation="0"
+        android:rotationY="0"
+        android:src="@drawable/logo" />
 
     <ImageView
         android:id="@+id/imageViewLogo"
