@@ -15,7 +15,7 @@ import org.mindrot.jbcrypt.BCrypt;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "user.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_USER_ID = "user_id";
     private static final String COLUMN_USERNAME = "username";
@@ -43,11 +43,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_GENDER + " TEXT, "
             + COLUMN_DATE_OF_BIRTH + " TEXT, "
             + COLUMN_ACTIVITY_LEVEL + " TEXT, "
-            + COLUMN_PROGRESS_BAR_FRUITS + " INTEGER DEFAULT 0, "
-            + COLUMN_PROGRESS_BAR_PROTEIN + " INTEGER DEFAULT 0, "
-            + COLUMN_PROGRESS_BAR_FATS + " INTEGER DEFAULT 0, "
-            + COLUMN_PROGRESS_BAR_CARBS + " INTEGER DEFAULT 0, "
-            + COLUMN_PROGRESS_BAR_SODIUM + " INTEGER DEFAULT 0 "
+            + COLUMN_PROGRESS_BAR_FRUITS + " REAL DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_PROTEIN + " REAL DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_FATS + " REAL DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_CARBS + " REAL DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_SODIUM + " REAL DEFAULT 0 "
             + ")";
 
 

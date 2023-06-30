@@ -12,6 +12,10 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,6 +28,8 @@ public class ProfileActivity extends AppCompatActivity {
     private RadioGroup radioGroupGender;
     private RadioGroup radioGroupActivity;
     private Button buttonSave;
+
+    private ActivityResultLauncher<Intent> homePageLauncher;
 
     private DatabaseHelper databaseHelper;
     private CurrentUser currentUser;
@@ -42,7 +48,8 @@ public class ProfileActivity extends AppCompatActivity {
         editTextHeight = findViewById(R.id.editTextHeight);
         spinnerDay = findViewById(R.id.spinnerDay);
         spinnerMonth = findViewById(R.id.spinnerMonth);
-        spinnerYear = findViewById(R.id.spinnerYear);        radioGroupGender = findViewById(R.id.radioGroupGender);
+        spinnerYear = findViewById(R.id.spinnerYear);
+        radioGroupGender = findViewById(R.id.radioGroupGender);
         radioGroupActivity = findViewById(R.id.radioGroupActivity);
         buttonSave = findViewById(R.id.buttonSave);
 
@@ -62,6 +69,11 @@ public class ProfileActivity extends AppCompatActivity {
 
         yearAdapter.notifyDataSetChanged();
 
+        // Retrieve the user information from the Intent
+        User user = databaseHelper.getUserById(getCurrentUserId());
+        if (user.getWeight() != 0 && user.getHeight() != 0 && !user.getDateOfBirth().isEmpty() && !user.getGender().isEmpty() && !user.getActivityLevel().isEmpty())
+            prefillProfilePage(user);
+
 
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +90,12 @@ public class ProfileActivity extends AppCompatActivity {
         String dateOfBirth = getDateOfBirth();
         String gender = getSelectedGender();
         String levelActivity = getSelectedActivity();
+
+        // Validate date of birth
+        if (!isValidDate(dateOfBirth)) {
+            Toast.makeText(ProfileActivity.this, "Please enter a valid date of birth", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         int userId = databaseHelper.getUserIdBySessionToken(sharedPreferences.getString("sessionToken", ""));
 
@@ -100,7 +118,6 @@ public class ProfileActivity extends AppCompatActivity {
             CurrentUser.getInstance().setUser(databaseHelper.getUserById(rowId));
             databaseHelper.printUsers();
             databaseHelper.printSessions();
-            // Optionally, you can navigate the user to the login page or any other desired activity
             startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
             finish();
         } else {
@@ -126,9 +143,9 @@ public class ProfileActivity extends AppCompatActivity {
             return "Inactive";
         } else if (selectedId == R.id.radioButtonSomeWhatActive) {
             return "Somewhat Active";
-        }else if (selectedId == R.id.radioButtonActive) {
+        } else if (selectedId == R.id.radioButtonActive) {
             return "Active";
-        }else if (selectedId == R.id.radioButtonVeryActive) {
+        } else if (selectedId == R.id.radioButtonVeryActive) {
             return "Very Active";
         }
 
@@ -144,7 +161,7 @@ public class ProfileActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String getDateOfBirth(){
+    private String getDateOfBirth() {
         // Values from the spinners
         String selectedDay = spinnerDay.getSelectedItem().toString();
         String selectedMonth = spinnerMonth.getSelectedItem().toString();
@@ -184,6 +201,127 @@ public class ProfileActivity extends AppCompatActivity {
                 return "-1"; // Invalid month name
         }
     }
+
+    private boolean isValidDate(String date) {
+        try {
+            // Split the date into day, month, and year
+            String[] parts = date.split("-");
+            int day = Integer.parseInt(parts[0]);  //31
+            int month = Integer.parseInt(parts[1]); //02
+            int year = Integer.parseInt(parts[2]); //1994
+
+            // Check if the day is valid for the given month
+            boolean isLeapYear = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+            int[] daysInMonth = {31, isLeapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+            int maxDays = daysInMonth[month - 1];
+            if (day > maxDays) {
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private int getSpinnerIndex(Spinner spinner, String value) {
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinner.getAdapter();
+        for (int i = 0; i < adapter.getCount(); i++) {
+            if (adapter.getItem(i).equals(value)) {
+                return i;
+            }
+        }
+        return 0; // Default index if value not found
+    }
+
+    private String getMonthName(String monthNumber) {
+        switch (monthNumber) {
+            case "01":
+                return "January";
+            case "02":
+                return "February";
+            case "03":
+                return "March";
+            case "04":
+                return "April";
+            case "05":
+                return "May";
+            case "06":
+                return "June";
+            case "07":
+                return "July";
+            case "08":
+                return "August";
+            case "09":
+                return "September";
+            case "10":
+                return "October";
+            case "11":
+                return "November";
+            case "12":
+                return "December";
+            default:
+                return ""; // Empty string if month number is invalid
+        }
+    }
+
+    private int getCurrentUserId() {
+        // Retrieve the session token from SharedPreferences
+        String sessionToken = sharedPreferences.getString("sessionToken", null);
+
+        // Get the user ID based on the session token from the DatabaseHelper
+        return databaseHelper.getUserIdBySessionToken(sessionToken);
+    }
+
+    private void setSpinnerSelectionByValue(Spinner spinner, String value) {
+        ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinner.getAdapter();
+        if (adapter != null) {
+            int position = adapter.getPosition(value);
+            spinner.setSelection(position);
+        }
+    }
+
+
+    private void prefillProfilePage(User user) {
+        // Set the user information into the corresponding views
+        editTextWeight.setText(String.valueOf((int) user.getWeight()));
+        editTextHeight.setText(String.valueOf((int) user.getHeight()));
+
+        String[] dateOfBirthParts = user.getDateOfBirth().split("-");
+        String day = dateOfBirthParts[0];
+        String month = getMonthName(dateOfBirthParts[1]);
+        String year = dateOfBirthParts[2];
+
+        int dayIndex = getSpinnerIndex(spinnerDay, day);
+        int monthIndex = getSpinnerIndex(spinnerMonth, month);
+        int yearIndex = getSpinnerIndex(spinnerYear, year);
+
+        spinnerDay.setSelection(dayIndex);
+        spinnerMonth.setSelection(monthIndex);
+        spinnerYear.setSelection(yearIndex);
+
+        if (user.getGender().equals("Male")) {
+            radioGroupGender.check(R.id.radioButtonMale);
+        } else if (user.getGender().equals("Female")) {
+            radioGroupGender.check(R.id.radioButtonFemale);
+        }
+
+        switch (user.getActivityLevel()) {
+            case "Inactive":
+                radioGroupActivity.check(R.id.radioButtonInactive);
+                break;
+            case "Somewhat Active":
+                radioGroupActivity.check(R.id.radioButtonSomeWhatActive);
+                break;
+            case "Active":
+                radioGroupActivity.check(R.id.radioButtonActive);
+                break;
+            case "Very Active":
+                radioGroupActivity.check(R.id.radioButtonVeryActive);
+                break;
+        }
+    }
+
 
 }
 

@@ -175,9 +175,6 @@ public class AddFoodActivity extends AppCompatActivity {
         Intent intent = getIntent(); // Retrieve the current intent
         ArrayList<Nutrient> nutrients = response.getNutrition().getNutrients();
         ArrayList<String> category = response.getCategoryPath();
-        if(response.getAisle().contains("Produce") || category.contains("vegetable") || category.contains("fruit")){
-            intent.putExtra("fruits_veg", response.getNutrition().getWeightPerServing().getAmount());
-        }
         for(int i = 0; i< nutrients.size(); i++){
             if (nutrients.get(i).getName().equalsIgnoreCase("Carbohydrates")) {
                 intent.putExtra("carbs", nutrients.get(i).getAmount());
@@ -188,6 +185,9 @@ public class AddFoodActivity extends AppCompatActivity {
             }else if (nutrients.get(i).getName().equalsIgnoreCase("Sodium")){
                 intent.putExtra("sodium", nutrients.get(i).getAmount()/1000); //dividing by 1000 to get grams
             }
+        }
+        if(response.getAisle().contains("Produce") || category.contains("vegetable") || category.contains("fruit")){
+            intent.putExtra("fruits_veg", response.getNutrition().getWeightPerServing().getAmount());
         }
         setResult(RESULT_OK, intent); // Set the updated intent as the result
         finish();

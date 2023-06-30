@@ -88,13 +88,13 @@ public class HomeActivity extends AppCompatActivity {
         maxCarbs = expectedCarbsPerDay();
         maxSodium = 2;
 
-        totalFruitVeg=currentUser.getFruitsVegs();
-        totalProtein=currentUser.getProtein();
-        totalFat=currentUser.getFats();
-        totalCarbs=currentUser.getCarbs();
-        totalSodium=currentUser.getSodium();
+        totalFruitVeg = currentUser.getFruitsVegs();
+        totalProtein = currentUser.getProtein();
+        totalFat = currentUser.getFats();
+        totalCarbs = currentUser.getCarbs();
+        totalSodium = currentUser.getSodium();
 
-        updateProgressBars(totalFruitVeg, totalProtein, totalFat, totalCarbs, totalSodium);
+        setProgressBars(totalFruitVeg, totalProtein, totalFat, totalCarbs, totalSodium);
         setRecommendedTextViewValues();
 
 
@@ -114,11 +114,11 @@ public class HomeActivity extends AppCompatActivity {
                         if (result.getResultCode() == RESULT_OK) {
                             Intent data = result.getData();
                             if (data != null) {
-                                int fruitVeg = (int) Math.round(data.getDoubleExtra("fruits_veg", 0));
-                                int protein = (int) Math.round(data.getDoubleExtra("protein", 0));
-                                int fat = (int) Math.round(data.getDoubleExtra("fat", 0));
-                                int carbs = (int) Math.round(data.getDoubleExtra("carbs", 0));
-                                int sodium = (int) Math.round(data.getDoubleExtra("sodium", 0));
+                                double fruitVeg =  Math.round(data.getDoubleExtra("fruits_veg", 0));
+                                double protein = Math.round(data.getDoubleExtra("protein", 0));
+                                double fat = Math.round(data.getDoubleExtra("fat", 0));
+                                double carbs = Math.round(data.getDoubleExtra("carbs", 0));
+                                double sodium = Math.round(data.getDoubleExtra("sodium", 0));
                                 updateProgressBars(fruitVeg, protein, fat, carbs, sodium);
 
                             }
@@ -133,7 +133,33 @@ public class HomeActivity extends AppCompatActivity {
         addFoodLauncher.launch(intent);
     }
 
-    private void updateProgressBars(int fruitVeg, int protein, int fat, int carbs, int sodium) {
+    private void setProgressBars(double fruitVeg, double protein, double fat, double carbs, double sodium) {
+        // Calculate the progress percentage for each progress bar
+        int fruitVegProgress = (int) ((fruitVeg / minFruitVeg) * 100);
+        int proteinProgress = (int) ((protein / minProtein) * 100);
+        int fatProgress = (int) ((fat / maxFats) * 100);
+        int carbsProgress = (int) ((carbs / maxCarbs) * 100);
+        int saltProgress = (int) ((sodium / maxSodium) * 100);
+
+        // Set the progress values for each progress bar
+        progressFruitVeg.setProgress(fruitVegProgress);
+        progressBarProtein.setProgress(proteinProgress);
+        progressBarFat.setProgress(fatProgress);
+        progressBarCarbs.setProgress(carbsProgress);
+        progressBarSodium.setProgress(saltProgress);
+
+        // Set the progress bar colors based on the progress values
+        setProgressBarColorRedToGreen(progressFruitVeg, fruitVegProgress);
+        setProgressBarColorRedToGreen(progressBarProtein, proteinProgress);
+        setProgressBarColorGreenToRed(progressBarFat, fatProgress);
+        setProgressBarColorGreenToRed(progressBarCarbs, carbsProgress);
+        setProgressBarColorGreenToRed(progressBarSodium, saltProgress);
+
+        setRecommendedTextViewValues();
+
+    }
+
+    private void updateProgressBars(double fruitVeg, double protein, double fat, double carbs, double sodium) {
         totalFruitVeg += fruitVeg;
         totalProtein += protein;
         totalFat += fat;
@@ -179,11 +205,11 @@ public class HomeActivity extends AppCompatActivity {
         textViewCurrentValueCarbs.setText("Current: " + totalCarbs);
         textViewCurrentValueSodium.setText("Current: " + totalSodium);
 
-        textViewRecommendedValueFruitsVeg.setText("Min: " + Math.round(minFruitVeg)+ " g");
-        textViewMinProtein.setText("Min: " + Math.round(minProtein)+ " g");
-        textViewMaxFats.setText("Max: " + Math.round(maxFats)+ " g");
-        textViewMaxCarbs.setText("Max: " + Math.round(maxCarbs)+ " g");
-        textViewMaxSalt.setText("Max: " + Math.round(maxSodium)+ " g");
+        textViewRecommendedValueFruitsVeg.setText("Min: " + Math.round(minFruitVeg) + " g");
+        textViewMinProtein.setText("Min: " + Math.round(minProtein) + " g");
+        textViewMaxFats.setText("Max: " + Math.round(maxFats) + " g");
+        textViewMaxCarbs.setText("Max: " + Math.round(maxCarbs) + " g");
+        textViewMaxSalt.setText("Max: " + Math.round(maxSodium) + " g");
     }
 
     private void setProgressBarColorRedToGreen(ProgressBar progressBar, int progress) {
@@ -236,11 +262,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private double expectedFatPerDay() {
-        return (calculateCalories() * 0.3)/9; //Fat provides 9 calories per gram
+        return (calculateCalories() * 0.3) / 9; //Fat provides 9 calories per gram
     }
 
     private double expectedCarbsPerDay() {
-        return (calculateCalories() * 0.65)/4;//Carbohydrates provide 4 calories per gram
+        return (calculateCalories() * 0.65) / 4;//Carbohydrates provide 4 calories per gram
     }
 
     // Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
@@ -281,33 +307,13 @@ public class HomeActivity extends AppCompatActivity {
             performLogout();
             return true;
         }
-        if (item.getItemId() == R.id.profile) {
-            // Handle profile action
-            openProfileActivityWithUserInfo();
+        if (itemId == R.id.profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private void openProfileActivityWithUserInfo() {
-        // Get the user information from the database
-        int userId = databaseHelper.getUserIdBySessionToken(sharedPreferences.getString("sessionToken", ""));
-        User user = databaseHelper.getUserById(userId);
-
-        // Create an intent to open the ProfileActivity
-        Intent intent = new Intent(this, ProfileActivity.class);
-
-        // Pass the user information as extras to the intent
-        intent.putExtra("userId", user.getUserId());
-        intent.putExtra("height", user.getHeight());
-        intent.putExtra("weight", user.getWeight());
-        intent.putExtra("dateOfBirth", user.getDateOfBirth());
-        intent.putExtra("gender", user.getGender());
-        intent.putExtra("activityLevel", user.getActivityLevel());
-
-        // Start the ProfileActivity
-        startActivity(intent);
-    }
 
     private int getCurrentUserId() {
         // Retrieve the session token from SharedPreferences
