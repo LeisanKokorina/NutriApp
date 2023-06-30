@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
-        android:hint="Enter ingredient name"
+        android:hint="Enter product name"
         android:completionThreshold="1"
         android:popupBackground="@android:color/white"
         android:popupElevation="8dp"
@@ -59,6 +59,7 @@
         android:id="@+id/buttonSubmit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/button_default_color"
         android:text="Submit" />
 
 </LinearLayout>

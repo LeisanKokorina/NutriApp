@@ -1,12 +1,13 @@
 package com.example.nutriapp;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -17,12 +18,16 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ProfileActivity extends AppCompatActivity {
     private EditText editTextWeight;
     private EditText editTextHeight;
-    private LinearLayout datePicker;
+    private Spinner spinnerDay;
+    private Spinner spinnerMonth;
+    private Spinner spinnerYear;
     private RadioGroup radioGroupGender;
     private RadioGroup radioGroupActivity;
     private Button buttonSave;
 
     private DatabaseHelper databaseHelper;
+    private CurrentUser currentUser;
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +37,12 @@ public class ProfileActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true); // Enable the back button
         }
-
+        sharedPreferences = getSharedPreferences("SessionPrefs", MODE_PRIVATE);
         editTextWeight = findViewById(R.id.editTextWeight);
         editTextHeight = findViewById(R.id.editTextHeight);
-        datePicker = findViewById(R.id.linearLayoutDateOfBirth);
-        radioGroupGender = findViewById(R.id.radioGroupGender);
+        spinnerDay = findViewById(R.id.spinnerDay);
+        spinnerMonth = findViewById(R.id.spinnerMonth);
+        spinnerYear = findViewById(R.id.spinnerYear);        radioGroupGender = findViewById(R.id.radioGroupGender);
         radioGroupActivity = findViewById(R.id.radioGroupActivity);
         buttonSave = findViewById(R.id.buttonSave);
 
@@ -56,6 +62,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         yearAdapter.notifyDataSetChanged();
 
+
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,22 +75,31 @@ public class ProfileActivity extends AppCompatActivity {
         // Get the entered username and password
         float height = Float.parseFloat(editTextHeight.getText().toString().trim());
         float weight = Float.parseFloat(editTextWeight.getText().toString().trim());
-        String dateOfBirth = datePicker.toString().trim();
+        String dateOfBirth = getDateOfBirth();
         String gender = getSelectedGender();
         String levelActivity = getSelectedActivity();
 
-        User user = new User(null,null, height, weight, dateOfBirth, gender, levelActivity);
+        int userId = databaseHelper.getUserIdBySessionToken(sharedPreferences.getString("sessionToken", ""));
 
+        User user = new User();
+        user.setHeight(height);
+        user.setWeight(weight);
+        user.setDateOfBirth(dateOfBirth);
+        user.setGender(gender);
+        user.setActivityLevel(levelActivity);
+        user.setUserId(userId);
 
         // Insert user details into the database
         long rowId = databaseHelper.updateUser(user);
 
 
         if (rowId != -1) {
-            user.setUserId(rowId);
-            // Registration successful
-            Toast.makeText(ProfileActivity.this, "Your profile information successfully updated!", Toast.LENGTH_SHORT).show();
 
+            // profile saved successfully
+            Toast.makeText(ProfileActivity.this, "Your profile information successfully updated!", Toast.LENGTH_SHORT).show();
+            CurrentUser.getInstance().setUser(databaseHelper.getUserById(rowId));
+            databaseHelper.printUsers();
+            databaseHelper.printSessions();
             // Optionally, you can navigate the user to the login page or any other desired activity
             startActivity(new Intent(ProfileActivity.this, HomeActivity.class));
             finish();
@@ -101,7 +117,7 @@ public class ProfileActivity extends AppCompatActivity {
         } else if (selectedId == R.id.radioButtonFemale) {
             return "Female";
         }
-        return "";
+        return null;
     }
 
     private String getSelectedActivity() {
@@ -127,6 +143,48 @@ public class ProfileActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private String getDateOfBirth(){
+        // Values from the spinners
+        String selectedDay = spinnerDay.getSelectedItem().toString();
+        String selectedMonth = spinnerMonth.getSelectedItem().toString();
+        String selectedYear = spinnerYear.getSelectedItem().toString();
+
+
+        return selectedDay + "-" + getMonthNumber(selectedMonth) + "-" + selectedYear;
+    }
+
+    private String getMonthNumber(String monthName) {
+        switch (monthName.toLowerCase()) {
+            case "january":
+                return "01";
+            case "february":
+                return "02";
+            case "march":
+                return "03";
+            case "april":
+                return "04";
+            case "may":
+                return "05";
+            case "june":
+                return "06";
+            case "july":
+                return "07";
+            case "august":
+                return "08";
+            case "september":
+                return "09";
+            case "october":
+                return "10";
+            case "november":
+                return "11";
+            case "december":
+                return "12";
+            default:
+                return "-1"; // Invalid month name
+        }
+    }
+
 }
 
 

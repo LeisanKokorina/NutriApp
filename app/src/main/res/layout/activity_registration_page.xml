@@ -32,16 +32,27 @@
         android:hint="Password"
         android:inputType="textPassword" />
 
+    <EditText
+        android:id="@+id/editTextConfirmPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/editTextPassword"
+        android:layout_marginTop="10dp"
+        android:hint="Confirm Password"
+        android:inputType="textPassword" />
+
     <Button
         android:id="@+id/buttonRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/editTextPassword"
+        android:layout_below="@id/editTextConfirmPassword"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="154dp"
-        android:layout_marginTop="133dp"
+        android:layout_centerInParent="true"
+        android:layout_marginStart="153dp"
+        android:layout_marginTop="76dp"
         android:layout_marginEnd="151dp"
+        android:backgroundTint="@color/button_default_color"
         android:text="Register" />
 
 

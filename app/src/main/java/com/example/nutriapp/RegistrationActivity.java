@@ -13,7 +13,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 public class RegistrationActivity extends AppCompatActivity {
 
-    private EditText editTextUsername, editTextPassword;
+    private EditText editTextUsername, editTextPassword, editTextConfirmPassword;
     private Button buttonRegister;
     private DatabaseHelper databaseHelper;
 
@@ -25,6 +25,7 @@ public class RegistrationActivity extends AppCompatActivity {
         // Initialize views
         editTextUsername = findViewById(R.id.editTextUsername);
         editTextPassword = findViewById(R.id.editTextPassword);
+        editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword);
         buttonRegister = findViewById(R.id.buttonRegister);
 
         // Initialize Database Helper
@@ -43,7 +44,20 @@ public class RegistrationActivity extends AppCompatActivity {
         // Get the entered username and password
         String username = editTextUsername.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
+        String confirmPassword = editTextConfirmPassword.getText().toString().trim();
         String hashPassword = hashPassword(password);
+
+        // Check if any fields are left blank
+        if (username.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            Toast.makeText(RegistrationActivity.this, "All fields are required", Toast.LENGTH_SHORT).show();
+            return; // Stop further execution
+        }
+
+        // Check if passwords match
+        if (!password.equals(confirmPassword)) {
+            Toast.makeText(RegistrationActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return; // Stop further execution
+        }
 
         // Check if the username is already taken
         if (databaseHelper.isUsernameTaken(username)) {
@@ -51,7 +65,9 @@ public class RegistrationActivity extends AppCompatActivity {
             return; // Stop further execution
         }
 
-        User user = new User(username, hashPassword);
+        User user = new User();
+        user.setUsername(username);
+        user.setHashPassword(hashPassword);
 
 
         // Insert user details into the database
@@ -59,8 +75,6 @@ public class RegistrationActivity extends AppCompatActivity {
 
 
         if (rowId != -1) {
-            user.setUserId(rowId);
-            databaseHelper.printUsers();
             // Registration successful
             Toast.makeText(RegistrationActivity.this, "Registration Successful", Toast.LENGTH_SHORT).show();
 

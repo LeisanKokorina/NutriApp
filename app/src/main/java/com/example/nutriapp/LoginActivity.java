@@ -2,6 +2,7 @@ package com.example.nutriapp;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -13,13 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.UUID;
+
 public class LoginActivity extends AppCompatActivity {
 
     private EditText editTextUsername, editTextPassword;
     private Button buttonLogin;
     private TextView textViewSignUp;
     // Create an instance of the DatabaseHelper
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
+    private SharedPreferences sharedPreferences;
 
 
     @Override
@@ -32,8 +36,11 @@ public class LoginActivity extends AppCompatActivity {
         editTextPassword = findViewById(R.id.editTextPassword);
         buttonLogin = findViewById(R.id.buttonLogin);
         textViewSignUp = findViewById(R.id.textViewSignUp);
+
         // Create an instance of the DatabaseHelper
         databaseHelper = new DatabaseHelper(this);
+
+        sharedPreferences = getSharedPreferences("SessionPrefs", MODE_PRIVATE);
 
 
         // Check if user is already logged in
@@ -63,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     boolean isLoggedIn() {
-        return databaseHelper.getLastValidSessionUsername() != null;
+        return databaseHelper.getUserIdBySessionToken(sharedPreferences.getString("sessionToken", "")) != -1;
     }
 
     private void login() {
@@ -73,14 +80,20 @@ public class LoginActivity extends AppCompatActivity {
         User user = new User(username, password);
 
         // Check if the entered username and password match the values in the database
-        int validUserID =  databaseHelper.getCurrentSessionUserId(user);
+        int validUserID = databaseHelper.getUserIdUsersTable(user);
 
         if (validUserID != -1) {
-            User userSession = new User(validUserID);
+            User userSession = new User();
+            // Generate a session token
+            String sessionToken = generateSessionToken();
+            userSession.setToken(sessionToken);
+            userSession.setUserId(validUserID);
             databaseHelper.createSession(userSession);
 
-            CurrentUser currentUser = CurrentUser.getInstance();
-            currentUser.setUser(userSession);
+            // Save the session token to SharedPreferences
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("sessionToken", sessionToken);
+            editor.apply();
 
             startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
             finish();
@@ -90,12 +103,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private String hashPassword(String password) {
-        // Generate a salt for bcrypt
-        String salt = BCrypt.gensalt();
-
-        // Hash the password using bcrypt
-        return BCrypt.hashpw(password, salt);
+    private String generateSessionToken() {
+        // Generate a session token using UUID or any other method
+        return UUID.randomUUID().toString();
     }
 }
 

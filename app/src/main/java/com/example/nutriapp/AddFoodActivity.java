@@ -97,10 +97,7 @@ public class AddFoodActivity extends AppCompatActivity {
         });
     }
     private void getIngredientInfo(int ingredientId) {
-        // Make the API call to retrieve ingredient information
-        // Replace the following code with your actual implementation
-        // Retrofit call and response handling
-        // Example code:
+        // The API call to retrieve ingredient information
         manager.getIngredientInfo(new IngredientInfoResponseListener() {
             @Override
             public void fetch(IngredientInfoAPIResponse response, String message) {
@@ -116,16 +113,10 @@ public class AddFoodActivity extends AppCompatActivity {
         }, ingredientId);
     }
     private void getIngredientInfo(int ingredientId, double amount, String units) {
-        // Make the API call to retrieve ingredient information
-        // Replace the following code with your actual implementation
-        // Retrofit call and response handling
-        // Example code:
+        // The API call to retrieve ingredient information
         manager.getIngredientInfo(new IngredientInfoResponseListener() {
             @Override
             public void fetch(IngredientInfoAPIResponse response, String message) {
-                // Process the retrieved ingredient information
-                // Update the HomeActivity with the nutrition data
-                // Example code:
                 updateHomeActivity(response);
             }
 
@@ -168,10 +159,7 @@ public class AddFoodActivity extends AppCompatActivity {
     }
 
     private int getIngredientIdByName(List<Result> results, String ingredientName) {
-        // Make the API call to retrieve the ingredient ID based on the name
-        // Replace the following code with your actual implementation
-        // Retrofit call and response handling
-        // Example code:
+        // The API call to retrieve ingredient information
         int ingredientId = 0;
         // Iterate over the list of ingredients and find the matching ID
         for (Result result : results) {
@@ -187,13 +175,20 @@ public class AddFoodActivity extends AppCompatActivity {
         Intent intent = getIntent(); // Retrieve the current intent
         ArrayList<Nutrient> nutrients = response.getNutrition().getNutrients();
         ArrayList<String> category = response.getCategoryPath();
-        if(category.contains("vegetable") || category.contains("fruit")){
-            intent.putExtra("fruits_veg", response.getAmount());
+        if(response.getAisle().contains("produce") || category.contains("vegetable") || category.contains("fruit")){
+            intent.putExtra("fruits_veg", response.getNutrition().getWeightPerServing().getAmount());
         }
-        intent.putExtra("protein", nutrients.get(0).getPercentOfDailyNeeds());
-        intent.putExtra("fat", nutrients.get(19).getPercentOfDailyNeeds());
-        intent.putExtra("carbs", nutrients.get(7).getPercentOfDailyNeeds());
-        intent.putExtra("salt", nutrients.get(5).getPercentOfDailyNeeds());
+        for(int i = 0; i< nutrients.size(); i++){
+            if (nutrients.get(i).getName().equalsIgnoreCase("Carbohydrates")) {
+                intent.putExtra("carbs", nutrients.get(i).getAmount());
+            }else if(nutrients.get(i).getName().equalsIgnoreCase("Fat")){
+                intent.putExtra("fat", nutrients.get(i).getAmount());
+            }else if (nutrients.get(i).getName().equalsIgnoreCase("Protein")){
+                intent.putExtra("protein", nutrients.get(i).getAmount());
+            }else if (nutrients.get(i).getName().equalsIgnoreCase("Sodium")){
+                intent.putExtra("sodium", nutrients.get(i).getAmount());
+            }
+        }
         setResult(RESULT_OK, intent); // Set the updated intent as the result
         finish();
     }

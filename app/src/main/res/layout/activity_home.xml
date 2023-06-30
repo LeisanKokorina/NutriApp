@@ -8,18 +8,8 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/teal_200"
-            android:elevation="4dp"
-            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-            android:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content"
+        android:background="#C90E9805"/>
 
 
     <!-- Rest of your UI components -->
@@ -56,7 +46,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Recommended: 0"
+            android:text="Min: 0"
             android:textSize="16sp"
             android:textStyle="italic" />
 
@@ -73,79 +63,188 @@
         android:layout_marginTop="0dp" />
 
 
-    <TextView
-        android:id="@+id/textViewProtein"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/layoutProtein"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Protein:"
-        android:textSize="18sp"
+        android:orientation="horizontal"
         android:layout_below="@id/progressBarFruitsVeg"
-        android:padding="16dp"
-        android:layout_marginTop="0dp" />
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/textViewProtein"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:text="Protein:                          "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentValueProtein"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Current: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/textViewMinProtein"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Min: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBarProtein"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textViewProtein"
+        android:layout_below="@id/layoutProtein"
         android:padding="16dp"
         android:layout_marginTop="0dp" />
 
-    <TextView
-        android:id="@+id/textViewFat"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/layoutFats"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Fat:"
-        android:textSize="18sp"
+        android:orientation="horizontal"
         android:layout_below="@id/progressBarProtein"
-        android:padding="16dp"
-        android:layout_marginTop="0dp" />
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/textViewFats"
+            android:layout_width="218dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:text="Fats:                          "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentValueFats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Current: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/textViewMaxFats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Max: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
+
 
     <ProgressBar
         android:id="@+id/progressBarFat"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textViewFat"
+        android:layout_below="@id/layoutFats"
         android:padding="16dp"
         android:layout_marginTop="0dp" />
 
-    <TextView
-        android:id="@+id/textViewCarbs"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/layoutCarbs"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Carbs:"
-        android:textSize="18sp"
+        android:orientation="horizontal"
         android:layout_below="@id/progressBarFat"
-        android:padding="16dp"
-        android:layout_marginTop="0dp" />
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/textViewCarbs"
+            android:layout_width="223dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:text="Carbs:                          "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentValueCarbs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Current: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/textViewMaxCarbs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Max: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBarCarbs"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textViewCarbs"
+        android:layout_below="@id/layoutCarbs"
         android:padding="16dp"
         android:layout_marginTop="0dp" />
 
-    <TextView
-        android:id="@+id/textViewSalt"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/layoutSalt"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Salt:"
-        android:textSize="18sp"
+        android:orientation="horizontal"
         android:layout_below="@id/progressBarCarbs"
-        android:padding="16dp"
-        android:layout_marginTop="0dp" />
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/textViewSalt"
+            android:layout_width="224dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="16dp"
+            android:text="Sodium:                          "
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/textViewCurrentValueSalt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Current: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/textViewMaxSalt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Max: 0"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBarSalt"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textViewSalt"
+        android:layout_below="@id/layoutSalt"
         android:padding="16dp"
         android:layout_marginTop="0dp" />
 
@@ -156,6 +255,7 @@
         android:layout_below="@id/progressBarSalt"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="0dp"
+        android:backgroundTint="@color/button_default_color"
         android:text="Add Food" />
 
 </RelativeLayout>

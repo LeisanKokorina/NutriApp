@@ -7,12 +7,15 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+
 import org.mindrot.jbcrypt.BCrypt;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "user.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_USER_ID = "user_id";
     private static final String COLUMN_USERNAME = "username";
@@ -39,12 +42,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_SESSIONS = "sessions";
     private static final String COLUMN_SESSION_ID = "session_id";
 
-    private static final String COLUMN_TIMESTAMP = "timestamp";
+    private static final String COLUMN_SESSION_TIMESTAMP = "timestamp";
+
+    private static final String COLUMN_SESSION_USER_ID = "user_id";
+
+    private static final String COLUMN_SESSION_TOKEN = "token";
 
     private static final String CREATE_TABLE_SESSIONS_QUERY =
-            "CREATE TABLE " + TABLE_SESSIONS + " (" +
-                    COLUMN_SESSION_ID + " INTEGER," +
-                    COLUMN_TIMESTAMP + " INTEGER)";
+            "CREATE TABLE " + TABLE_SESSIONS + " ("
+                    +  COLUMN_SESSION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + COLUMN_SESSION_TIMESTAMP + " INTEGER,"
+                    + COLUMN_SESSION_USER_ID + " INTEGER,"
+                    + COLUMN_SESSION_TOKEN + " TEXT"
+                    + ")";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -61,7 +71,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop the existing table if needed and recreate it
-        if (oldVersion < 2) {
+        if (oldVersion < DATABASE_VERSION) {
             // Drop the old version of the table if it exists
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_SESSIONS);
@@ -85,12 +95,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            if (user.getUsername() != null) {
-                values.put(COLUMN_USERNAME, user.getUsername());
-            }
-            if (user.getHashPassword() != null) {
-                values.put(COLUMN_PASSWORD, user.getHashPassword());
-            }
             if (user.getHeight() != 0) {
                 values.put(COLUMN_HEIGHT, user.getHeight());
             }
@@ -117,10 +121,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public int getCurrentSessionUserId(User user) {
+    public int getUserIdUsersTable(User user) {
         SQLiteDatabase db = getReadableDatabase();
         try {
-            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH};
+            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH, COLUMN_ACTIVITY_LEVEL};
             String selection = COLUMN_USERNAME + " = ?";
             String[] selectionArgs = {user.getUsername()};
             Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
@@ -148,8 +152,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         try {
             ContentValues values = new ContentValues();
-            values.put(COLUMN_SESSION_ID, user.getUserId());
-            values.put(COLUMN_TIMESTAMP, System.currentTimeMillis());
+            values.put(COLUMN_SESSION_TIMESTAMP, System.currentTimeMillis());
+            values.put(COLUMN_SESSION_USER_ID, user.getUserId());
+            values.put(COLUMN_SESSION_TOKEN, user.getToken());
             return db.insert(TABLE_SESSIONS, null, values);
         } finally {
             db.close();
@@ -163,7 +168,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try {
             String[] columns = {COLUMN_USERNAME};
-            String selection = COLUMN_USERNAME + " = ? AND " + COLUMN_TIMESTAMP + " >= ?";
+            String selection = COLUMN_USERNAME + " = ? AND " + COLUMN_SESSION_TIMESTAMP + " >= ?";
             String[] selectionArgs = {username, String.valueOf(getSixHoursAgoTimestamp())};
             cursor = db.query(TABLE_SESSIONS, columns, selection, selectionArgs, null, null, null);
 
@@ -199,7 +204,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             // Optionally, clear sessions older than 6 hours
             long currentTime = System.currentTimeMillis();
             long sixHoursAgo = currentTime - (6 * 60 * 60 * 1000); // 6 hours in milliseconds
-            String olderThanSixHours = COLUMN_TIMESTAMP + " < ?";
+            String olderThanSixHours = COLUMN_SESSION_TIMESTAMP + " < ?";
             String[] olderThanSixHoursArgs = {String.valueOf(sixHoursAgo)};
             db.delete(TABLE_SESSIONS, olderThanSixHours, olderThanSixHoursArgs);
         } finally {
@@ -207,20 +212,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void clearSession() {
+    public void clearSession(int userId) {
         SQLiteDatabase db = getWritableDatabase();
         try {
-            // clear sessions older than 6 hours
-            long currentTime = System.currentTimeMillis();
-            long sixHoursAgo = currentTime - (6 * 60 * 60 * 1000); // 6 hours in milliseconds
-            String olderThanSixHours = COLUMN_TIMESTAMP + " < ?";
-            String[] olderThanSixHoursArgs = {String.valueOf(sixHoursAgo)};
-            db.delete(TABLE_SESSIONS, olderThanSixHours, olderThanSixHoursArgs);
+            // Clear sessions for the specified user ID
+            String whereClause = COLUMN_SESSION_USER_ID + " = ?";
+            String[] whereArgs = {String.valueOf(userId)};
+            db.delete(TABLE_SESSIONS, whereClause, whereArgs);
         } finally {
             db.close();
         }
     }
-
     public String getLastValidSessionUsername() {
         SQLiteDatabase db = getReadableDatabase();
         String username = null;
@@ -228,9 +230,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         try {
             String[] columns = {COLUMN_SESSION_ID};
-            String selection = COLUMN_TIMESTAMP + " >= ?";
+            String selection = COLUMN_SESSION_TIMESTAMP + " >= ?";
             String[] selectionArgs = {String.valueOf(getSixHoursAgoTimestamp())};
-            String orderBy = COLUMN_TIMESTAMP + " DESC";
+            String orderBy = COLUMN_SESSION_TIMESTAMP + " DESC";
             String limit = "1";
             cursor = db.query(TABLE_SESSIONS, columns, selection, selectionArgs, null, null, orderBy, limit);
 
@@ -264,16 +266,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void printUsers() {
         SQLiteDatabase db = getReadableDatabase();
         try {
-            String[] columns = {COLUMN_USERNAME, COLUMN_PASSWORD};
+            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH, COLUMN_ACTIVITY_LEVEL};
             Cursor cursor = db.query(TABLE_USERS, columns, null, null, null, null, null);
             if (cursor.moveToFirst()) {
                 do {
+                    int idColumnIndex = cursor.getColumnIndex(COLUMN_USER_ID);
                     int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
                     int passwordColumnIndex = cursor.getColumnIndex(COLUMN_PASSWORD);
-                    if (passwordColumnIndex != -1 && userColumnIndex != -1) {
+                    int heightColumnIndex = cursor.getColumnIndex(COLUMN_HEIGHT);
+                    int weightColumnIndex = cursor.getColumnIndex(COLUMN_WEIGHT);
+                    int genderColumnIndex = cursor.getColumnIndex(COLUMN_GENDER);
+                    int dateColumnIndex = cursor.getColumnIndex(COLUMN_DATE_OF_BIRTH);
+                    int activityColumnIndex = cursor.getColumnIndex(COLUMN_ACTIVITY_LEVEL);
+                    if (idColumnIndex != -1 && userColumnIndex != -1 && passwordColumnIndex != -1 && heightColumnIndex != -1 && weightColumnIndex != -1 && genderColumnIndex != -1 && dateColumnIndex != -1 && activityColumnIndex != -1) {
+                        String id = cursor.getString(idColumnIndex);
                         String username = cursor.getString(userColumnIndex);
                         String password = cursor.getString(passwordColumnIndex);
-                        Log.d("User", "Username: " + username + ", Password: " + password);
+                        String height = cursor.getString(heightColumnIndex);
+                        String weight = cursor.getString(weightColumnIndex);
+                        String gender = cursor.getString(genderColumnIndex);
+                        String date = cursor.getString(dateColumnIndex);
+                        String activity = cursor.getString(activityColumnIndex);
+                        Log.d("User", "Username id: " + id + ", username: " + username + ", Password: " + password + ", height: " + height + ", weight: " + weight + ", gender: " + gender + ", date of birth: " + date + ", activity level: " + activity);
                     }
                 } while (cursor.moveToNext());
             }
@@ -286,16 +300,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void printSessions() {
         SQLiteDatabase db = getReadableDatabase();
         try {
-            String[] columns = {COLUMN_USERNAME, COLUMN_TIMESTAMP};
+            String[] columns = {COLUMN_SESSION_ID, COLUMN_SESSION_TIMESTAMP, COLUMN_SESSION_USER_ID, COLUMN_SESSION_TOKEN};
             Cursor cursor = db.query(TABLE_SESSIONS, columns, null, null, null, null, null);
             if (cursor.moveToFirst()) {
                 do {
-                    int userColumnIndex = cursor.getColumnIndex(COLUMN_USERNAME);
-                    int timeColumnIndex = cursor.getColumnIndex(COLUMN_TIMESTAMP);
-                    if (timeColumnIndex != -1 && userColumnIndex != -1) {
-                        String username = cursor.getString(userColumnIndex);
+                    int idColumnIndex = cursor.getColumnIndex(COLUMN_SESSION_ID);
+                    int timeColumnIndex = cursor.getColumnIndex(COLUMN_SESSION_TIMESTAMP);
+                    int userIDColumnIndex = cursor.getColumnIndex(COLUMN_SESSION_USER_ID);
+                    int tokenColumnIndex = cursor.getColumnIndex(COLUMN_SESSION_TOKEN);
+                    if (idColumnIndex != -1 && userIDColumnIndex != -1 && timeColumnIndex != -1 && tokenColumnIndex != -1) {
+                        String id = cursor.getString(idColumnIndex);
                         String timestamp = cursor.getString(timeColumnIndex);
-                        Log.d("User", "Username: " + username + ", Timestamp: " + timestamp);
+                        String userId = cursor.getString(userIDColumnIndex);
+                        String token = cursor.getString(tokenColumnIndex);
+                        Log.d("Session", "Session id: " + id + ", UserId: " + userId + ", Timestamp: " + timestamp+ ", Token: " + token);
                     }
                 } while (cursor.moveToNext());
             }
@@ -327,6 +345,34 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    // Method to get the user ID based on the session token
+    public int getUserIdBySessionToken(String sessionToken) {
+        SQLiteDatabase db = getReadableDatabase();
+        int userId = -1;
+
+        String query = "SELECT " + COLUMN_SESSION_USER_ID +
+                " FROM " + TABLE_SESSIONS +
+                " WHERE " + COLUMN_SESSION_TOKEN + " = ?";
+        String[] selectionArgs = {sessionToken};
+
+        Cursor cursor = db.rawQuery(query, selectionArgs);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int columnIndex = cursor.getColumnIndex(COLUMN_SESSION_USER_ID);
+            if (columnIndex != -1) {
+                userId = cursor.getInt(columnIndex);
+            }
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        db.close();
+
+        return userId;
+    }
+
     public float getUserWeight(User user) {
         SQLiteDatabase db = getReadableDatabase();
         float weight = 0.0f;
@@ -334,7 +380,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             String[] columns = {COLUMN_WEIGHT};
             String selection = COLUMN_USER_ID + " = ?";
-            String[] selectionArgs = {String.valueOf(getCurrentSessionUserId(user))};
+            String[] selectionArgs = {String.valueOf(getUserIdUsersTable(user))};
             Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
 
             if (cursor.moveToFirst()) {
@@ -350,6 +396,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
         return weight;
+    }
+
+    public User getUserById(long userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        User user = null;
+
+        String[] columns = {
+                COLUMN_USER_ID,
+                COLUMN_USERNAME,
+                COLUMN_PASSWORD,
+                COLUMN_HEIGHT,
+                COLUMN_WEIGHT,
+                COLUMN_GENDER,
+                COLUMN_DATE_OF_BIRTH,
+                COLUMN_ACTIVITY_LEVEL
+        };
+
+        String selection = COLUMN_USER_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+
+        Cursor cursor = db.query(
+                TABLE_USERS,
+                columns,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            int idIndex = cursor.getColumnIndexOrThrow(COLUMN_USER_ID);
+            int usernameIndex = cursor.getColumnIndexOrThrow(COLUMN_USERNAME);
+            int passwordIndex = cursor.getColumnIndexOrThrow(COLUMN_PASSWORD);
+            int heightIndex = cursor.getColumnIndexOrThrow(COLUMN_HEIGHT);
+            int weightIndex = cursor.getColumnIndexOrThrow(COLUMN_WEIGHT);
+            int genderIndex = cursor.getColumnIndexOrThrow(COLUMN_GENDER);
+            int dateOfBirthIndex = cursor.getColumnIndexOrThrow(COLUMN_DATE_OF_BIRTH);
+            int activityLevelIndex = cursor.getColumnIndexOrThrow(COLUMN_ACTIVITY_LEVEL);
+
+            long id = cursor.getLong(idIndex);
+            String username = cursor.getString(usernameIndex);
+            String password = cursor.getString(passwordIndex);
+            double height = cursor.getDouble(heightIndex);
+            double weight = cursor.getDouble(weightIndex);
+            String gender = cursor.getString(genderIndex);
+            String dateOfBirth = cursor.getString(dateOfBirthIndex);
+            String activityLevel = cursor.getString(activityLevelIndex);
+
+            // Create the User object using the retrieved values
+            user = new User(id, username, password, height, weight, gender, dateOfBirth, activityLevel);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        db.close();
+
+        return user;
     }
 
 }
