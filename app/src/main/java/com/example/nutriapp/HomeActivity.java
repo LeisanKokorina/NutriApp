@@ -42,11 +42,11 @@ public class HomeActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
     private User currentUser;
     private SharedPreferences sharedPreferences;
-    private int totalFruitVeg = 0;
-    private int totalProtein = 0;
-    private int totalFat = 0;
-    private int totalCarbs = 0;
-    private int totalSodium = 0;
+    private int totalFruitVeg;
+    private int totalProtein;
+    private int totalFat;
+    private int totalCarbs;
+    private int totalSodium;
     double minFruitVeg;
     double minProtein;
     double maxFats;
@@ -86,7 +86,17 @@ public class HomeActivity extends AppCompatActivity {
         minProtein = expectedProteinPerDay();
         maxFats = expectedFatPerDay();
         maxCarbs = expectedCarbsPerDay();
-        maxSodium = 2000;
+        maxSodium = 2;
+
+        totalFruitVeg=currentUser.getFruitsVegs();
+        totalProtein=currentUser.getProtein();
+        totalFat=currentUser.getFats();
+        totalCarbs=currentUser.getCarbs();
+        totalSodium=currentUser.getSodium();
+
+        updateProgressBars(totalFruitVeg, totalProtein, totalFat, totalCarbs, totalSodium);
+        setRecommendedTextViewValues();
+
 
         buttonAddFood.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -152,6 +162,13 @@ public class HomeActivity extends AppCompatActivity {
         setProgressBarColorGreenToRed(progressBarSodium, saltProgress);
 
         setRecommendedTextViewValues();
+        currentUser.setFruitsVegs(totalFruitVeg);
+        currentUser.setProtein(totalProtein);
+        currentUser.setFats(totalFat);
+        currentUser.setCarbs(totalCarbs);
+        currentUser.setSodium(totalSodium);
+
+        databaseHelper.updateUser(currentUser);
     }
 
     private void setRecommendedTextViewValues() {
@@ -162,29 +179,26 @@ public class HomeActivity extends AppCompatActivity {
         textViewCurrentValueCarbs.setText("Current: " + totalCarbs);
         textViewCurrentValueSodium.setText("Current: " + totalSodium);
 
-        textViewRecommendedValueFruitsVeg.setText("Min: " + minFruitVeg);
-        textViewMinProtein.setText("Min: " + minProtein);
-        textViewMaxFats.setText("Max: " + maxFats);
-        textViewMaxCarbs.setText("Max: " + maxCarbs);
-        textViewMaxSalt.setText("Max: " + maxSodium);
+        textViewRecommendedValueFruitsVeg.setText("Min: " + Math.round(minFruitVeg)+ " g");
+        textViewMinProtein.setText("Min: " + Math.round(minProtein)+ " g");
+        textViewMaxFats.setText("Max: " + Math.round(maxFats)+ " g");
+        textViewMaxCarbs.setText("Max: " + Math.round(maxCarbs)+ " g");
+        textViewMaxSalt.setText("Max: " + Math.round(maxSodium)+ " g");
     }
 
     private void setProgressBarColorRedToGreen(ProgressBar progressBar, int progress) {
         // Calculate the color based on the progress value
         int darkGreenColor = ContextCompat.getColor(this, R.color.dark_green);
         int greenColor = ContextCompat.getColor(this, R.color.green);
-        int yellowColor = ContextCompat.getColor(this, R.color.yellow);
-        int redColor = ContextCompat.getColor(this, R.color.red);
+        int lightGreen = ContextCompat.getColor(this, R.color.light_green);
         int progressBarColor;
 
         if (progress >= 100) {
             progressBarColor = darkGreenColor;
         } else if (progress >= 50) {
             progressBarColor = greenColor;
-        } else if (progress >= 25) {
-            progressBarColor = yellowColor;
         } else {
-            progressBarColor = redColor;
+            progressBarColor = lightGreen;
         }
 
         // Set the progress bar color
@@ -193,20 +207,17 @@ public class HomeActivity extends AppCompatActivity {
 
     private void setProgressBarColorGreenToRed(ProgressBar progressBar, int progress) {
         // Calculate the color based on the progress value
-        int darkGreenColor = ContextCompat.getColor(this, R.color.dark_green);
         int greenColor = ContextCompat.getColor(this, R.color.green);
-        int yellowColor = ContextCompat.getColor(this, R.color.yellow);
         int redColor = ContextCompat.getColor(this, R.color.red);
+        int darkRedColor = ContextCompat.getColor(this, R.color.dark_red);
         int progressBarColor;
 
         if (progress >= 100) {
-            progressBarColor = redColor;
+            progressBarColor = darkRedColor;
         } else if (progress >= 50) {
-            progressBarColor = yellowColor;
-        } else if (progress >= 25) {
-            progressBarColor = greenColor;
+            progressBarColor = redColor;
         } else {
-            progressBarColor = darkGreenColor;
+            progressBarColor = greenColor;
         }
 
         // Set the progress bar color
@@ -214,22 +225,22 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    private int expectedProteinPerDay() {
+    private double expectedProteinPerDay() {
         // Retrieve the user's weight from the database
         double weight = currentUser.getWeight();
 
         // Calculate the maximum protein value based on the weight and protein allowance
         double proteinAllowance = 0.8; // Protein allowance in grams per kg body weight per day
 
-        return (int) (weight * proteinAllowance);
+        return weight * proteinAllowance;
     }
 
-    private int expectedFatPerDay() {
-        return (int) (calculateCalories() * 0.3);
+    private double expectedFatPerDay() {
+        return (calculateCalories() * 0.3)/9; //Fat provides 9 calories per gram
     }
 
-    private int expectedCarbsPerDay() {
-        return (int) (calculateCalories() * 0.65);
+    private double expectedCarbsPerDay() {
+        return (calculateCalories() * 0.65)/4;//Carbohydrates provide 4 calories per gram
     }
 
     // Men: BMR = 88.362 + (13.397 x weight in kg) + (4.799 x height in cm) – (5.677 x age in years)
@@ -270,8 +281,32 @@ public class HomeActivity extends AppCompatActivity {
             performLogout();
             return true;
         }
-
+        if (item.getItemId() == R.id.profile) {
+            // Handle profile action
+            openProfileActivityWithUserInfo();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void openProfileActivityWithUserInfo() {
+        // Get the user information from the database
+        int userId = databaseHelper.getUserIdBySessionToken(sharedPreferences.getString("sessionToken", ""));
+        User user = databaseHelper.getUserById(userId);
+
+        // Create an intent to open the ProfileActivity
+        Intent intent = new Intent(this, ProfileActivity.class);
+
+        // Pass the user information as extras to the intent
+        intent.putExtra("userId", user.getUserId());
+        intent.putExtra("height", user.getHeight());
+        intent.putExtra("weight", user.getWeight());
+        intent.putExtra("dateOfBirth", user.getDateOfBirth());
+        intent.putExtra("gender", user.getGender());
+        intent.putExtra("activityLevel", user.getActivityLevel());
+
+        // Start the ProfileActivity
+        startActivity(intent);
     }
 
     private int getCurrentUserId() {
@@ -289,6 +324,8 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(new Intent(this, LoginActivity.class));
         finish();
     }
+
+
 }
 
 

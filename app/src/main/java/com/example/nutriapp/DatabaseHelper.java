@@ -15,7 +15,7 @@ import org.mindrot.jbcrypt.BCrypt;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "user.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_USER_ID = "user_id";
     private static final String COLUMN_USERNAME = "username";
@@ -27,6 +27,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String COLUMN_ACTIVITY_LEVEL = "activity_level";
 
+    private static final String COLUMN_PROGRESS_BAR_FRUITS = "fruit_veg";
+    private static final String COLUMN_PROGRESS_BAR_PROTEIN = "protein";
+    private static final String COLUMN_PROGRESS_BAR_FATS = "fats";
+    private static final String COLUMN_PROGRESS_BAR_CARBS = "carbs";
+    private static final String COLUMN_PROGRESS_BAR_SODIUM = "sodium";
+
+
     private static final String CREATE_TABLE_QUERY = "CREATE TABLE " + TABLE_USERS + " ("
             + COLUMN_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_USERNAME + " TEXT, "
@@ -35,7 +42,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_WEIGHT + " REAL, "
             + COLUMN_GENDER + " TEXT, "
             + COLUMN_DATE_OF_BIRTH + " TEXT, "
-            + COLUMN_ACTIVITY_LEVEL + " TEXT"
+            + COLUMN_ACTIVITY_LEVEL + " TEXT, "
+            + COLUMN_PROGRESS_BAR_FRUITS + " INTEGER DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_PROTEIN + " INTEGER DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_FATS + " INTEGER DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_CARBS + " INTEGER DEFAULT 0, "
+            + COLUMN_PROGRESS_BAR_SODIUM + " INTEGER DEFAULT 0 "
             + ")";
 
 
@@ -110,6 +122,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             if (user.getActivityLevel() != null) {
                 values.put(COLUMN_ACTIVITY_LEVEL, user.getActivityLevel());
             }
+            if (user.getFruitsVegs() != 0) {
+                values.put(COLUMN_PROGRESS_BAR_FRUITS, user.getFruitsVegs());
+            }
+            if (user.getProtein() != 0) {
+                values.put(COLUMN_PROGRESS_BAR_PROTEIN, user.getProtein());
+            }
+            if (user.getFats() != 0) {
+                values.put(COLUMN_PROGRESS_BAR_FATS, user.getFats());
+            }
+            if (user.getCarbs() != 0) {
+                values.put(COLUMN_PROGRESS_BAR_CARBS, user.getCarbs());
+            }
+            if (user.getSodium() != 0) {
+                values.put(COLUMN_PROGRESS_BAR_SODIUM, user.getSodium());
+            }
+
 
             String whereClause = COLUMN_USER_ID + " = ?";
             String[] whereArgs = {String.valueOf(user.getUserId())};
@@ -124,7 +152,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public int getUserIdUsersTable(User user) {
         SQLiteDatabase db = getReadableDatabase();
         try {
-            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH, COLUMN_ACTIVITY_LEVEL};
+            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH, COLUMN_ACTIVITY_LEVEL, COLUMN_PROGRESS_BAR_FRUITS, COLUMN_PROGRESS_BAR_PROTEIN,COLUMN_PROGRESS_BAR_FATS, COLUMN_PROGRESS_BAR_CARBS, COLUMN_PROGRESS_BAR_SODIUM};
             String selection = COLUMN_USERNAME + " = ?";
             String[] selectionArgs = {user.getUsername()};
             Cursor cursor = db.query(TABLE_USERS, columns, selection, selectionArgs, null, null, null);
@@ -266,7 +294,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void printUsers() {
         SQLiteDatabase db = getReadableDatabase();
         try {
-            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH, COLUMN_ACTIVITY_LEVEL};
+            String[] columns = {COLUMN_USER_ID, COLUMN_USERNAME, COLUMN_PASSWORD , COLUMN_HEIGHT, COLUMN_WEIGHT, COLUMN_GENDER, COLUMN_DATE_OF_BIRTH, COLUMN_ACTIVITY_LEVEL, COLUMN_PROGRESS_BAR_FRUITS, COLUMN_PROGRESS_BAR_PROTEIN,COLUMN_PROGRESS_BAR_FATS, COLUMN_PROGRESS_BAR_CARBS, COLUMN_PROGRESS_BAR_SODIUM};
             Cursor cursor = db.query(TABLE_USERS, columns, null, null, null, null, null);
             if (cursor.moveToFirst()) {
                 do {
@@ -278,6 +306,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     int genderColumnIndex = cursor.getColumnIndex(COLUMN_GENDER);
                     int dateColumnIndex = cursor.getColumnIndex(COLUMN_DATE_OF_BIRTH);
                     int activityColumnIndex = cursor.getColumnIndex(COLUMN_ACTIVITY_LEVEL);
+                    int fruitsColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_FRUITS);
+                    int proteinColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_PROTEIN);
+                    int fatsColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_FATS);
+                    int carbsColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_CARBS);
+                    int sodiumColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_SODIUM);
                     if (idColumnIndex != -1 && userColumnIndex != -1 && passwordColumnIndex != -1 && heightColumnIndex != -1 && weightColumnIndex != -1 && genderColumnIndex != -1 && dateColumnIndex != -1 && activityColumnIndex != -1) {
                         String id = cursor.getString(idColumnIndex);
                         String username = cursor.getString(userColumnIndex);
@@ -287,7 +320,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         String gender = cursor.getString(genderColumnIndex);
                         String date = cursor.getString(dateColumnIndex);
                         String activity = cursor.getString(activityColumnIndex);
-                        Log.d("User", "Username id: " + id + ", username: " + username + ", Password: " + password + ", height: " + height + ", weight: " + weight + ", gender: " + gender + ", date of birth: " + date + ", activity level: " + activity);
+                        String fruits = cursor.getString(fruitsColumnIndex);
+                        String protein = cursor.getString(proteinColumnIndex);
+                        String fats = cursor.getString(fatsColumnIndex);
+                        String carbs = cursor.getString(carbsColumnIndex);
+                        String sodium = cursor.getString(sodiumColumnIndex);
+                        Log.d("User", "Username id: " + id + ", username: " + username + ", Password: " + password + ", height: " + height + ", weight: " + weight + ", gender: " + gender + ", date of birth: " + date + ", activity level: " + activity+ ", fruits_veg: " + fruits+ ", protein: " + protein+ ", fats: " + fats+ ", carbs: " + carbs+ ", sodium: " + sodium);
                     }
                 } while (cursor.moveToNext());
             }
@@ -410,7 +448,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_WEIGHT,
                 COLUMN_GENDER,
                 COLUMN_DATE_OF_BIRTH,
-                COLUMN_ACTIVITY_LEVEL
+                COLUMN_ACTIVITY_LEVEL,
+                COLUMN_PROGRESS_BAR_FRUITS,
+                COLUMN_PROGRESS_BAR_PROTEIN,
+                COLUMN_PROGRESS_BAR_FATS,
+                COLUMN_PROGRESS_BAR_CARBS,
+                COLUMN_PROGRESS_BAR_SODIUM
         };
 
         String selection = COLUMN_USER_ID + " = ?";
@@ -435,6 +478,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int genderIndex = cursor.getColumnIndexOrThrow(COLUMN_GENDER);
             int dateOfBirthIndex = cursor.getColumnIndexOrThrow(COLUMN_DATE_OF_BIRTH);
             int activityLevelIndex = cursor.getColumnIndexOrThrow(COLUMN_ACTIVITY_LEVEL);
+            int fruitsColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_FRUITS);
+            int proteinColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_PROTEIN);
+            int fatsColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_FATS);
+            int carbsColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_CARBS);
+            int sodiumColumnIndex = cursor.getColumnIndex(COLUMN_PROGRESS_BAR_SODIUM);
 
             long id = cursor.getLong(idIndex);
             String username = cursor.getString(usernameIndex);
@@ -444,9 +492,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String gender = cursor.getString(genderIndex);
             String dateOfBirth = cursor.getString(dateOfBirthIndex);
             String activityLevel = cursor.getString(activityLevelIndex);
+            int fruits = cursor.getInt(fruitsColumnIndex);
+            int protein = cursor.getInt(proteinColumnIndex);
+            int fats = cursor.getInt(fatsColumnIndex);
+            int carbs = cursor.getInt(carbsColumnIndex);
+            int sodium = cursor.getInt(sodiumColumnIndex);
 
             // Create the User object using the retrieved values
-            user = new User(id, username, password, height, weight, gender, dateOfBirth, activityLevel);
+            user = new User(id, username, password, height, weight, gender, dateOfBirth, activityLevel, fruits, protein, fats, carbs, sodium);
         }
 
         if (cursor != null) {

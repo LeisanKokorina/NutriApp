@@ -17,6 +17,11 @@ public class User {
     private String activityLevel;
 
     private String token;
+    private int fruitsVegs;
+    private int protein;
+    private int fats;
+    private int carbs;
+    private int sodium;
 
 
 
@@ -38,7 +43,7 @@ public class User {
     public User() {
     }
 
-    public User(long userId, String username, String hashPassword, double height, double weight, String gender, String dateOfBirth, String activityLevel) {
+    public User(long userId, String username, String hashPassword, double height, double weight, String gender, String dateOfBirth, String activityLevel, int fruitsVegs, int protein, int fats, int carbs, int sodium) {
         this.userId = userId;
         this.username = username;
         this.hashPassword = hashPassword;
@@ -47,7 +52,14 @@ public class User {
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
         this.activityLevel = activityLevel;
+        this.fruitsVegs = fruitsVegs;
+        this.protein = protein;
+        this.fats = fats;
+        this.carbs = carbs;
+        this.sodium = sodium;
     }
+
+
 
     public long getUserId() {
         return userId;
@@ -119,6 +131,46 @@ public class User {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public int getFruitsVegs() {
+        return fruitsVegs;
+    }
+
+    public void setFruitsVegs(int fruitsVegs) {
+        this.fruitsVegs = fruitsVegs;
+    }
+
+    public int getProtein() {
+        return protein;
+    }
+
+    public void setProtein(int protein) {
+        this.protein = protein;
+    }
+
+    public int getFats() {
+        return fats;
+    }
+
+    public void setFats(int fats) {
+        this.fats = fats;
+    }
+
+    public int getCarbs() {
+        return carbs;
+    }
+
+    public void setCarbs(int carbs) {
+        this.carbs = carbs;
+    }
+
+    public int getSodium() {
+        return sodium;
+    }
+
+    public void setSodium(int sodium) {
+        this.sodium = sodium;
     }
 
     public int calculateAge() {

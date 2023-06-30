@@ -95,8 +95,14 @@ public class LoginActivity extends AppCompatActivity {
             editor.putString("sessionToken", sessionToken);
             editor.apply();
 
-            startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
-            finish();
+            User currentUser = databaseHelper.getUserById(validUserID);
+            if(currentUser.getWeight() == 0.0 && currentUser.getHeight() == 0.0 && currentUser.getDateOfBirth() == null && currentUser.getGender() == null && currentUser.getActivityLevel() == null){
+                startActivity(new Intent(LoginActivity.this, ProfileActivity.class));
+                finish();
+            } else {
+                startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                finish();
+            }
         } else {
             // Invalid username or password, show an error message
             Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
