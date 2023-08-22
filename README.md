@@ -10,12 +10,6 @@ NutriApp is a Android application designed to assist users in maintaining a heal
 - Plate Balance: The app calculates the balance of fruits and vegetables, proteins, fats, carbs, and sodium on the user's plate.
 - Progress Tracking: Progress bars are displayed to visually represent the user's nutrient intake and track their goals.
 
-## Installation
-
-1. Clone the repository to your local machine using `git clone https://github.com/zalyalieva/nutriapp.git`.
-2. Open the project in your preferred IDE (e.g., Android Studio).
-3. Build and run the project on an Android emulator or physical device.
-
 ## Technologies Used
 
 - Android SDK
